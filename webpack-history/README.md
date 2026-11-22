@@ -2,7 +2,7 @@
 
 一条约 3.5 分钟（默认 210 秒）的科普视频，面向前端开发者。1920×1080，30fps。
 
-**进度：** 第 1、2 幕已完成；第 3–8 幕暂为占位（只显示标题），主片的时间轴与转场可以完整预览。
+**进度：** 第 1–4 幕已完成；第 5–8 幕暂为占位（只显示标题），主片的时间轴与转场可以完整预览。
 
 ## 预览与渲染
 
@@ -19,8 +19,8 @@ Studio 左侧列出所有 Composition：
 | `WebpackHistory` | 主片，8 幕顺序拼接 | 210s |
 | `S01-intro` | 开场 | 15s |
 | `S02-prehistory` | 史前时代 2009–2012 | 30s |
-| `S03-birth` | 诞生 2012（占位） | 25s |
-| `S04-rise` | 崛起 2014–2016（占位） | 30s |
+| `S03-birth` | 诞生 2012 | 25s |
+| `S04-rise` | 崛起 2014–2016 | 30s |
 | `S05-iteration` | 快速迭代 2017–2018（占位） | 30s |
 | `S06-config-pain` | 配置之痛 2018–2020（占位） | 25s |
 | `S07-challengers` | 挑战者 2020–2024（占位） | 30s |
@@ -73,6 +73,7 @@ src/
     Background.tsx    #0B1020 + 极淡网格
     Chrome.tsx        Timeline + YearCounter 叠加层
     SceneShell.tsx    每幕外壳：等时间轴滑动 → 内容入场 → 结尾淡出 12 帧；<Audio> 接入点
+    Cube.tsx / FileIcon.tsx / Pill.tsx  立方体、文件图标、关键词胶囊（第 3、8 幕共用）
     ScenePlaceholder.tsx  未制作幕的占位
   scenes/Scene01Intro.tsx … Scene08Today.tsx
 ```

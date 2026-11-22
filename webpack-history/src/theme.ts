@@ -73,6 +73,26 @@ export const toolColors = {
 
 export type ToolId = keyof typeof toolColors;
 
+/** 文件类型配色（文件图标、依赖图节点的色点） */
+export const fileColors = {
+  js: '#E8D36A',
+  css: '#82AAFF',
+  image: '#7FD8A6',
+  font: '#C792EA',
+  html: '#F0A6A0',
+  ts: '#6FA8E8',
+} as const;
+
+export type FileKind = keyof typeof fileColors;
+
+/** 中央立方体：普通等轴立方体，三个面明暗不同 */
+export const cubeColors = {
+  top: alpha(base.accent, 0.42),
+  left: alpha(base.secondary, 0.75),
+  right: alpha(base.secondary, 0.45),
+  edge: base.accent,
+} as const;
+
 export const fonts = {
   sans: `${sans.fontFamily}, "PingFang SC", "Microsoft YaHei", sans-serif`,
   // 等宽字体回退到思源黑体，保证代码 / 终端中的中文正常显示
@@ -131,6 +151,10 @@ export const layout = {
   yearSpacing: 150,
   /** 终端窗口 */
   terminal: { width: 1180, height: 600, headerHeight: 52 },
+  /** 文件图标 */
+  fileIcon: { width: 84, height: 104 },
+  /** 依赖图节点 */
+  graphNode: { width: 230, height: 64 },
 } as const;
 
 /** 缓动 / spring 参数 */

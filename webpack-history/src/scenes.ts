@@ -132,9 +132,20 @@ export const scene03 = {
   audio: 'audio/scene03-birth.mp3',
   narration: NARRATION_TODO,
   copy: {
-    keywords: ['一切皆模块', '代码分割'],
-    author: 'Tobias Koppers',
+    /** 左侧四类文件：图标上的短标签 + 旁边的文件名（文件名为示意） */
+    files: [
+      { kind: 'js', label: 'JS', name: 'index.js' },
+      { kind: 'css', label: 'CSS', name: 'style.css' },
+      { kind: 'image', label: 'PNG', name: 'logo.png' },
+      { kind: 'font', label: 'WOFF', name: 'icon.woff' },
+    ],
+    inputDir: 'src/',
+    outputDir: 'dist/',
     output: 'bundle.js',
+    outputLabel: 'JS',
+    keywords: ['一切皆模块', '代码分割'],
+    authorLabel: '作者',
+    author: 'Tobias Koppers',
   },
 } as const satisfies SceneConfig;
 
@@ -152,7 +163,58 @@ export const scene04 = {
   audio: 'audio/scene04-rise.mp3',
   narration: NARRATION_TODO,
   copy: {
+    /** 依赖图（文件名为示意）。layer 0 为入口，连线从父节点指向子节点 */
+    graph: {
+      nodes: [
+        { id: 'entry', label: 'index.js', kind: 'js', layer: 0 },
+        { id: 'app', label: 'App.jsx', kind: 'js', layer: 1 },
+        { id: 'router', label: 'router.js', kind: 'js', layer: 1 },
+        { id: 'style', label: 'main.css', kind: 'css', layer: 1 },
+        { id: 'header', label: 'Header.jsx', kind: 'js', layer: 2 },
+        { id: 'list', label: 'List.jsx', kind: 'js', layer: 2 },
+        { id: 'api', label: 'api.js', kind: 'js', layer: 2 },
+        { id: 'logo', label: 'logo.png', kind: 'image', layer: 2 },
+        { id: 'font', label: 'icon.woff', kind: 'font', layer: 2 },
+        { id: 'item', label: 'Item.jsx', kind: 'js', layer: 3 },
+        { id: 'utils', label: 'utils.js', kind: 'js', layer: 3 },
+      ],
+      edges: [
+        ['entry', 'app'],
+        ['entry', 'router'],
+        ['entry', 'style'],
+        ['app', 'header'],
+        ['app', 'list'],
+        ['router', 'api'],
+        ['style', 'logo'],
+        ['style', 'font'],
+        ['list', 'item'],
+        ['api', 'utils'],
+      ],
+      entryTag: 'entry',
+    },
+    /** 依赖图生长完成后的说明（待核对） */
+    graphCaption: '从入口出发，沿 import / require 找出所有依赖，构成依赖图',
     hmrLabel: '热更新',
+    /** 热更新演示：左侧代码改动一行，右侧模拟页面只有对应区块更新（代码与页面均为示意） */
+    hmr: {
+      codeFilename: 'Header.jsx',
+      code: [
+        'export function Header() {',
+        '  return (',
+        '    <header>',
+        '      <h1>My App</h1>',
+        '    </header>',
+        '  );',
+        '}',
+      ],
+      editLine: 3,
+      editedLine: '      <h1>Hello, webpack</h1>',
+      pageUrl: 'localhost:8080',
+      pageTitleBefore: 'My App',
+      pageTitleAfter: 'Hello, webpack',
+    },
+    /** 热更新说明（待核对） */
+    hmrCaption: '只替换改动的模块，页面不刷新，其余部分保持原样',
   },
 } as const satisfies SceneConfig;
 
