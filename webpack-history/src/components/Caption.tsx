@@ -1,7 +1,7 @@
 import React from 'react';
 import { useCurrentFrame, useVideoConfig } from 'remotion';
 import { enterExitStyle } from '../lib/anim';
-import { colors, fonts, fontSize, fontWeight } from '../theme';
+import { colors, fonts, fontSize, fontWeight, lineHeight } from '../theme';
 
 type Props = {
   children: React.ReactNode;
@@ -40,7 +40,7 @@ export const Caption: React.FC<Props> = ({
         fontSize: fontSize[size],
         fontWeight: fontWeight[weight],
         color: toneColor[tone],
-        lineHeight: 1.5,
+        lineHeight: lineHeight.text,
         ...style,
         ...enterExitStyle(frame, fps, delay, exitAt),
       }}

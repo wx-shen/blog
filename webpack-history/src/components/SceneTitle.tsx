@@ -1,7 +1,7 @@
 import React from 'react';
 import { useCurrentFrame, useVideoConfig } from 'remotion';
 import { enterProgress, enterStyle } from '../lib/anim';
-import { colors, fonts, fontSize, fontWeight, layout } from '../theme';
+import { colors, fonts, fontSize, fontWeight, layout, space } from '../theme';
 
 type Props = {
   title: string;
@@ -19,16 +19,16 @@ export const SceneTitle: React.FC<Props> = ({ title, years, delay = 0 }) => {
     <div
       style={{
         position: 'absolute',
-        left: 440,
+        left: layout.titleLeft,
         top: layout.headerTop,
         height: fontSize.year * 1.1,
         display: 'flex',
         alignItems: 'center',
-        gap: 28,
+        gap: space.md,
         ...enterStyle(p),
       }}
     >
-      <div style={{ width: 3, height: 64, background: colors.secondary }} />
+      <div style={{ width: 3, height: fontSize.title * 0.9, background: colors.secondary }} />
       <div
         style={{
           fontFamily: fonts.sans,
@@ -40,7 +40,7 @@ export const SceneTitle: React.FC<Props> = ({ title, years, delay = 0 }) => {
         {title}
       </div>
       {years ? (
-        <div style={{ fontFamily: fonts.mono, fontSize: fontSize.note, color: colors.textDim, marginTop: 14 }}>
+        <div style={{ fontFamily: fonts.mono, fontSize: fontSize.note, color: colors.textDim, marginTop: space.sm }}>
           {years}
         </div>
       ) : null}

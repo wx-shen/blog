@@ -1,6 +1,6 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { colors } from '../theme';
+import { alpha, colors } from '../theme';
 
 /** 深蓝黑背景 + 极淡网格纹理（静态） */
 export const Background: React.FC = () => (
@@ -14,7 +14,7 @@ export const Background: React.FC = () => (
     />
     <AbsoluteFill
       style={{
-        background: 'radial-gradient(ellipse at 50% 40%, rgba(28,120,192,0.10) 0%, rgba(11,16,32,0) 55%, rgba(5,8,16,0.55) 100%)',
+        background: `radial-gradient(ellipse at 50% 40%, ${colors.glow} 0%, ${alpha(colors.bg, 0)} 55%, ${colors.vignette} 100%)`,
       }}
     />
   </AbsoluteFill>

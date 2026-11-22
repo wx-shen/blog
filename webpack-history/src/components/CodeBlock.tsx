@@ -1,7 +1,7 @@
 import React from 'react';
 import { interpolateColors, useCurrentFrame, useVideoConfig } from 'remotion';
 import { enterProgress, enterStyle } from '../lib/anim';
-import { colors, fonts, fontSize as fs, space } from '../theme';
+import { alpha, colors, fonts, fontSize as fs, lineHeight as lh, motion, space } from '../theme';
 
 type Props = {
   lines: readonly string[];
@@ -64,7 +64,7 @@ export const CodeBlock: React.FC<Props> = ({
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const lineHeight = Math.round(fontSize * 1.6);
+  const lineHeight = Math.round(fontSize * lh.code);
   const borderColor = interpolateColors(warning, [0, 1], [colors.panelBorder, colors.warning]);
 
   return (
@@ -74,7 +74,7 @@ export const CodeBlock: React.FC<Props> = ({
         background: colors.panel,
         border: `2px solid ${borderColor}`,
         borderRadius: space.radius,
-        boxShadow: warning > 0 ? `0 0 ${40 * warning}px rgba(242,153,74,${0.25 * warning})` : 'none',
+        boxShadow: warning > 0 ? `0 0 ${40 * warning}px ${alpha(colors.warning, 0.25 * warning)}` : 'none',
         overflow: 'hidden',
         ...style,
       }}
@@ -85,7 +85,7 @@ export const CodeBlock: React.FC<Props> = ({
             padding: `12px ${space.md}px`,
             borderBottom: `1px solid ${borderColor}`,
             fontFamily: fonts.mono,
-            fontSize: 22,
+            fontSize: fs.small,
             color: interpolateColors(warning, [0, 1], [colors.textDim, colors.warning]),
           }}
         >
@@ -98,7 +98,7 @@ export const CodeBlock: React.FC<Props> = ({
           if (start !== undefined && frame < start) {
             return null;
           }
-          const p = start === undefined ? 1 : enterProgress(frame, fps, start);
+          const p = start === undefined ? 1 : enterProgress(frame, fps, start, motion.lineEnterFrames);
           const hl = highlightLines.includes(i) ? highlightProgress : 0;
           const dim = dimLines.includes(i) ? dimProgress : 0;
           return (
@@ -109,7 +109,7 @@ export const CodeBlock: React.FC<Props> = ({
                 lineHeight: `${lineHeight}px`,
                 whiteSpace: 'pre',
                 position: 'relative',
-                ...enterStyle(p, 20),
+                ...enterStyle(p),
                 opacity: p * (1 - dim * 0.7),
               }}
             >
@@ -121,8 +121,8 @@ export const CodeBlock: React.FC<Props> = ({
                     right: -space.md,
                     top: 0,
                     bottom: 0,
-                    background: `rgba(141,214,249,${0.12 * hl})`,
-                    borderLeft: `4px solid rgba(141,214,249,${hl})`,
+                    background: alpha(colors.accent, 0.12 * hl),
+                    borderLeft: `4px solid ${alpha(colors.accent, hl)}`,
                   }}
                 />
               ) : null}

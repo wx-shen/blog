@@ -4,11 +4,12 @@ import { Caption } from '../components/Caption';
 import type { SceneProps } from '../components/SceneShell';
 import { Terminal, type TerminalLine } from '../components/Terminal';
 import { enterProgress, enterStyle, moveProgress } from '../lib/anim';
-import { colors, fonts, fontSize, fontWeight, motion, video } from '../theme';
+import { scene01 } from '../scenes';
+import { colors, fonts, fontSize, fontWeight, layout, motion, space, video } from '../theme';
 
-const COMMAND = 'npm run build';
+const COPY = scene01.copy;
 
-// 本幕时间表（帧）
+// 本幕时间表（帧，相对内容起点）
 const T = {
   terminalIn: 0,
   typeStart: 18,
@@ -21,30 +22,21 @@ const T = {
   subtitle: 326,
 } as const;
 
-const LOGS: readonly Omit<TerminalLine, 'at'>[] = [
-  { text: '> my-app@1.0.0 build', tone: 'dim' },
-  { text: 'asset main.3f9a1c.js 142 KiB [emitted] [minimized] (name: main)' },
-  { text: 'asset vendors.8b21e0.js 318 KiB [emitted] [minimized] (id hint: vendors)' },
-  { text: 'orphan modules 3.1 KiB [orphan] 12 modules' },
-  { text: './src/index.js + 386 modules 1.2 MiB [built] [code generated]', tone: 'dim' },
-  { text: 'webpack compiled successfully in 2318 ms', tone: 'success' },
-];
-
-const TERM_W = 1180;
-const TERM_H = 600;
+/** 终端缩小后的比例与中心位置 */
+const SHRUNK = { scale: 0.56, centerY: 340 } as const;
+const TITLE_TOP = 640;
 
 export const Scene01Intro: React.FC<SceneProps> = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const { width: termW, height: termH } = layout.terminal;
 
   const appear = enterProgress(frame, fps, T.terminalIn);
   const shrink = moveProgress(frame, fps, T.shrink);
-  const scale = interpolate(shrink, [0, 1], [1, 0.56]);
-  // 终端中心从画面中央上移到 y≈330
-  const centerY = interpolate(shrink, [0, 1], [video.height / 2, 330]);
+  const scale = interpolate(shrink, [0, 1], [1, SHRUNK.scale]);
+  const centerY = interpolate(shrink, [0, 1], [video.height / 2, SHRUNK.centerY]);
 
-  const lines: TerminalLine[] = LOGS.map((l, i) => ({ ...l, at: T.logStart + i * T.logStep }));
-
+  const lines: TerminalLine[] = COPY.logs.map((l, i) => ({ ...l, at: T.logStart + i * T.logStep }));
   const titleP = enterProgress(frame, fps, T.title);
 
   return (
@@ -52,8 +44,8 @@ export const Scene01Intro: React.FC<SceneProps> = () => {
       <div
         style={{
           position: 'absolute',
-          left: (video.width - TERM_W) / 2,
-          top: centerY - TERM_H / 2,
+          left: (video.width - termW) / 2,
+          top: centerY - termH / 2,
           transformOrigin: 'center center',
           opacity: appear,
           // 入场位移与缩放合并到同一个 transform 中
@@ -61,24 +53,15 @@ export const Scene01Intro: React.FC<SceneProps> = () => {
         }}
       >
         <Terminal
-          command={COMMAND}
+          title={COPY.terminalTitle}
+          command={COPY.command}
           typeStart={T.typeStart}
-          progress={{ start: T.progressStart, end: T.progressEnd, label: 'building' }}
+          progress={{ start: T.progressStart, end: T.progressEnd, label: COPY.progressLabel }}
           lines={lines}
-          width={TERM_W}
-          height={TERM_H}
         />
       </div>
 
-      <div
-        style={{
-          position: 'absolute',
-          top: 640,
-          width: '100%',
-          textAlign: 'center',
-          ...enterStyle(titleP),
-        }}
-      >
+      <div style={{ position: 'absolute', top: TITLE_TOP, width: '100%', textAlign: 'center', ...enterStyle(titleP) }}>
         <div
           style={{
             fontFamily: fonts.sans,
@@ -88,17 +71,28 @@ export const Scene01Intro: React.FC<SceneProps> = () => {
             letterSpacing: 4,
           }}
         >
-          <span style={{ color: colors.accent }}>webpack</span> 发展史
+          <span style={{ color: colors.accent }}>{COPY.titleAccent}</span>
+          {COPY.titleRest}
         </div>
       </div>
-      <Caption
-        delay={T.subtitle}
-        size="note"
-        tone="dim"
-        style={{ position: 'absolute', top: 750, width: '100%', textAlign: 'center', letterSpacing: 2 }}
-      >
-        从 script 标签到模块打包器 · <span style={{ fontFamily: fonts.mono }}>2009 – 2026</span>
-      </Caption>
+      {COPY.subtitle ? (
+        <Caption
+          delay={T.subtitle}
+          size="note"
+          tone="dim"
+          style={{
+            position: 'absolute',
+            top: TITLE_TOP + fontSize.title * 1.5,
+            width: '100%',
+            textAlign: 'center',
+            letterSpacing: 2,
+          }}
+        >
+          {COPY.subtitle}
+          <span style={{ margin: `0 ${space.sm}px`, color: colors.textFaint }}>·</span>
+          <span style={{ fontFamily: fonts.mono }}>{COPY.subtitleYears}</span>
+        </Caption>
+      ) : null}
     </AbsoluteFill>
   );
 };

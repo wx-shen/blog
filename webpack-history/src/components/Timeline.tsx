@@ -1,6 +1,6 @@
 import React from 'react';
 import { interpolate, interpolateColors } from 'remotion';
-import { colors, fonts, layout, space, timelineRange, video } from '../theme';
+import { colors, fonts, fontSize, fontWeight, layout, space, timelineRange, video } from '../theme';
 
 type Props = {
   /** 连续年份值（如 2013.4），当前年份始终居中 */
@@ -19,6 +19,8 @@ export const Timeline: React.FC<Props> = ({ year, visibility = 1 }) => {
   const centerX = video.width / 2;
   const offsetX = centerX - (year - timelineRange.from) * layout.yearSpacing;
   const baselineY = 26;
+  // 安全边距之外完全透明，向内 120px 渐显
+  const edgeMask = `linear-gradient(90deg, transparent ${space.safe}px, #000 ${space.safe * 2}px, #000 ${video.width - space.safe * 2}px, transparent ${video.width - space.safe}px)`;
 
   return (
     <div
@@ -30,9 +32,8 @@ export const Timeline: React.FC<Props> = ({ year, visibility = 1 }) => {
         height: layout.timelineHeight,
         opacity: visibility,
         transform: `translateY(${(1 - visibility) * 140}px)`,
-        // 两侧在安全边距内渐隐
-        maskImage: `linear-gradient(90deg, transparent 0, #000 ${space.safe * 2}px, #000 ${video.width - space.safe * 2}px, transparent ${video.width}px)`,
-        WebkitMaskImage: `linear-gradient(90deg, transparent 0, #000 ${space.safe * 2}px, #000 ${video.width - space.safe * 2}px, transparent ${video.width}px)`,
+        maskImage: edgeMask,
+        WebkitMaskImage: edgeMask,
       }}
     >
       {/* 基线 */}
@@ -102,8 +103,8 @@ export const Timeline: React.FC<Props> = ({ year, visibility = 1 }) => {
                   top: baselineY + 18,
                   textAlign: 'center',
                   fontFamily: fonts.mono,
-                  fontSize: 22,
-                  fontWeight: hl > 0.5 ? 700 : 400,
+                  fontSize: fontSize.small,
+                  fontWeight: hl > 0.5 ? fontWeight.bold : fontWeight.regular,
                   color,
                   transform: `scale(${1 + hl * 0.3})`,
                   transformOrigin: 'center top',

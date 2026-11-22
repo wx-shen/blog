@@ -7,12 +7,17 @@ const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
 export const slideEasing = Easing.bezier(...motion.slideBezier);
 
 /** 统一入场进度：spring（damping 200，无回弹），0 → 1 */
-export const enterProgress = (frame: number, fps: number, delay = 0): number =>
+export const enterProgress = (
+  frame: number,
+  fps: number,
+  delay = 0,
+  durationInFrames: number = motion.enterFrames,
+): number =>
   spring({
     frame: frame - delay,
     fps,
     config: motion.enterSpring,
-    durationInFrames: motion.enterFrames,
+    durationInFrames,
   });
 
 /** 较慢的位移进度（缩放、升起等） */

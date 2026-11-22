@@ -97,7 +97,7 @@ export const BarChart: React.FC<Props> = ({
                   marginLeft: space.md,
                   fontFamily: fonts.mono,
                   fontSize: fontSize.note,
-                  fontWeight: fontWeight.medium,
+                  fontWeight: fontWeight.bold,
                   color,
                   opacity: grow,
                 }}

@@ -1,52 +1,49 @@
 import React from 'react';
 import { interpolate, useCurrentFrame } from 'remotion';
-import { colors, fonts, motion, space } from '../theme';
+import { alpha, colors, fonts, fontSize, layout, lineHeight, motion, space } from '../theme';
+
+export type TerminalTone = 'normal' | 'dim' | 'success' | 'accent' | 'warning';
 
 export type TerminalLine = {
   text: string;
   /** 出现的帧（相对当前 Sequence） */
   at: number;
-  tone?: 'normal' | 'dim' | 'success' | 'accent' | 'warning';
+  tone?: TerminalTone;
 };
 
 type Props = {
+  /** 窗口标题栏文字 */
+  title: string;
   command: string;
   /** 开始打字的帧 */
   typeStart?: number;
-  /** 进度条：起止帧；省略则不显示 */
-  progress?: { start: number; end: number; label?: string };
+  /** 进度条：起止帧与标签；省略则不显示 */
+  progress?: { start: number; end: number; label: string };
   lines?: readonly TerminalLine[];
   width?: number;
   height?: number;
-  title?: string;
   style?: React.CSSProperties;
 };
 
-const toneColor = (tone: TerminalLine['tone']): string => {
-  switch (tone) {
-    case 'dim':
-      return colors.textDim;
-    case 'success':
-      return colors.success;
-    case 'accent':
-      return colors.accent;
-    case 'warning':
-      return colors.warning;
-    default:
-      return colors.text;
-  }
+const toneColor: Record<TerminalTone, string> = {
+  normal: colors.text,
+  dim: colors.textDim,
+  success: colors.success,
+  accent: colors.accent,
+  warning: colors.warning,
 };
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
 
+/** 终端窗口：打字机 → 进度条 → 日志逐行出现 */
 export const Terminal: React.FC<Props> = ({
+  title,
   command,
   typeStart = 0,
   progress,
   lines = [],
-  width = 1100,
-  height = 560,
-  title = 'zsh — ~/my-app',
+  width = layout.terminal.width,
+  height = layout.terminal.height,
   style,
 }) => {
   const frame = useCurrentFrame();
@@ -66,54 +63,63 @@ export const Terminal: React.FC<Props> = ({
       })
     : 0;
 
+  const dot = space.sm - 2;
+
   return (
     <div
       style={{
         width,
         height,
-        background: 'rgba(8, 12, 26, 0.96)',
+        background: colors.terminalBg,
         border: `2px solid ${colors.panelBorder}`,
         borderRadius: space.radius,
         overflow: 'hidden',
-        boxShadow: '0 30px 80px rgba(0,0,0,0.45)',
+        boxShadow: `0 30px 80px ${colors.shadow}`,
         ...style,
       }}
     >
       <div
         style={{
-          height: 52,
+          height: layout.terminal.headerHeight,
           display: 'flex',
           alignItems: 'center',
-          gap: 10,
+          gap: space.xs + 2,
           padding: `0 ${space.md}px`,
           borderBottom: `1px solid ${colors.panelBorder}`,
         }}
       >
         {[0, 1, 2].map((i) => (
-          <div key={i} style={{ width: 14, height: 14, borderRadius: 7, background: colors.textFaint }} />
+          <div key={i} style={{ width: dot, height: dot, borderRadius: dot / 2, background: colors.textFaint }} />
         ))}
         <div
           style={{
             flex: 1,
             textAlign: 'center',
             fontFamily: fonts.mono,
-            fontSize: 20,
+            fontSize: fontSize.small - 2,
             color: colors.textDim,
-            marginRight: 60,
+            marginRight: space.xl,
           }}
         >
           {title}
         </div>
       </div>
-      <div style={{ padding: `${space.lg}px ${space.lg}px`, fontFamily: fonts.mono, fontSize: 30, lineHeight: 1.7 }}>
+      <div
+        style={{
+          padding: space.lg,
+          fontFamily: fonts.mono,
+          fontSize: fontSize.terminal,
+          lineHeight: lineHeight.terminal,
+        }}
+      >
         <div style={{ color: colors.text, whiteSpace: 'pre' }}>
           <span style={{ color: colors.accent }}>$ </span>
           {shown}
           <span
             style={{
               display: 'inline-block',
-              width: 16,
-              height: 34,
+              width: fontSize.terminal * 0.55,
+              height: fontSize.terminal * 1.15,
               marginLeft: 2,
               verticalAlign: 'middle',
               background: colors.accent,
@@ -122,14 +128,14 @@ export const Terminal: React.FC<Props> = ({
           />
         </div>
         {progress && frame >= progress.start ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginTop: 8 }}>
-            <div style={{ color: colors.textDim, fontSize: 24, width: 150 }}>{progress.label ?? 'building'}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: space.md, marginTop: space.xs }}>
+            <div style={{ color: colors.textDim, fontSize: fontSize.terminalLog, width: 150 }}>{progress.label}</div>
             <div
               style={{
                 flex: 1,
                 height: 14,
                 borderRadius: 7,
-                background: 'rgba(141,214,249,0.12)',
+                background: alpha(colors.accent, 0.12),
                 overflow: 'hidden',
               }}
             >
@@ -141,19 +147,26 @@ export const Terminal: React.FC<Props> = ({
                 }}
               />
             </div>
-            <div style={{ color: pct >= 100 ? colors.success : colors.text, fontSize: 24, width: 80, textAlign: 'right' }}>
+            <div
+              style={{
+                color: pct >= 100 ? colors.success : colors.text,
+                fontSize: fontSize.terminalLog,
+                width: 80,
+                textAlign: 'right',
+              }}
+            >
               {Math.floor(pct)}%
             </div>
           </div>
         ) : null}
-        <div style={{ marginTop: 12 }}>
+        <div style={{ marginTop: space.sm - 4 }}>
           {lines.map((l, i) =>
             frame >= l.at ? (
               <div
                 key={i}
                 style={{
-                  color: toneColor(l.tone),
-                  fontSize: 24,
+                  color: toneColor[l.tone ?? 'normal'],
+                  fontSize: fontSize.terminalLog,
                   whiteSpace: 'pre',
                   opacity: interpolate(frame, [l.at, l.at + 6], [0, 1], clamp),
                 }}

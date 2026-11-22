@@ -1,32 +1,35 @@
 import React from 'react';
 import { useCurrentFrame, useVideoConfig } from 'remotion';
 import { enterProgress, enterStyle } from '../lib/anim';
-import { colors, fonts, fontSize, fontWeight, space } from '../theme';
+import { alpha, colors, fonts, fontSize, fontWeight, lineHeight, space } from '../theme';
 
 type Props = {
   name: string;
-  /** 右侧标签，如年份 "2017.01" 或类别 "模块加载器" */
-  tag?: string;
+  /** 工具的固定颜色（theme.toolColors） */
+  color: string;
   /** 徽章下方的一行说明 */
   description?: string;
   /** 说明比徽章晚出现的帧数 */
   descriptionDelay?: number;
   delay?: number;
-  accent?: string;
   /** 0 → 1：变暗（不再是焦点） */
   dim?: number;
   width?: number;
   style?: React.CSSProperties;
 };
 
-/** 工具 / 版本徽章：名称 + 标签，下方一行说明 */
+const BLOCK = 44;
+
+/**
+ * 工具徽章：圆角色块 + 工具名文字，下方可带一行说明。
+ * 不使用任何 Logo 图片，工具之间只靠固定颜色区分。
+ */
 export const ToolBadge: React.FC<Props> = ({
   name,
-  tag,
+  color,
   description,
   descriptionDelay = 14,
   delay = 0,
-  accent = colors.accent,
   dim = 0,
   width = 460,
   style,
@@ -42,15 +45,23 @@ export const ToolBadge: React.FC<Props> = ({
         style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: `${space.md}px ${space.lg}px`,
-          background: colors.panel,
-          border: `2px solid ${colors.panelBorder}`,
-          borderLeft: `6px solid ${accent}`,
+          gap: space.md,
+          padding: `${space.md}px ${space.lg}px ${space.md}px ${space.md}px`,
+          background: alpha(color, 0.1),
+          border: `2px solid ${alpha(color, 0.45)}`,
           borderRadius: space.radius,
           ...enterStyle(p),
         }}
       >
+        <div
+          style={{
+            width: BLOCK,
+            height: BLOCK,
+            flexShrink: 0,
+            borderRadius: space.radiusSm + 2,
+            background: color,
+          }}
+        />
         <div
           style={{
             fontFamily: fonts.sans,
@@ -62,11 +73,6 @@ export const ToolBadge: React.FC<Props> = ({
         >
           {name}
         </div>
-        {tag ? (
-          <div style={{ fontFamily: fonts.mono, fontSize: fontSize.note, color: accent, marginLeft: space.md }}>
-            {tag}
-          </div>
-        ) : null}
       </div>
       {description ? (
         <div
@@ -75,7 +81,7 @@ export const ToolBadge: React.FC<Props> = ({
             padding: `0 ${space.xs}px`,
             fontFamily: fonts.sans,
             fontSize: fontSize.note,
-            lineHeight: 1.5,
+            lineHeight: lineHeight.text,
             color: colors.textDim,
             ...enterStyle(pd),
           }}

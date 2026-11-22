@@ -2,7 +2,7 @@ import React from 'react';
 import { useCurrentFrame, useVideoConfig } from 'remotion';
 import { moveProgress } from '../lib/anim';
 import { getChromeRiseFrame, getYearState, type Segment } from '../lib/timing';
-import { colors, layout, transition } from '../theme';
+import { alpha, colors, layout, transition } from '../theme';
 import { Timeline } from './Timeline';
 import { YearCounter } from './YearCounter';
 
@@ -19,7 +19,7 @@ export const Chrome: React.FC<{ segments: Segment[] }> = ({ segments }) => {
   }
   return (
     <>
-      {/* 底部渐隐底衬：让溢出到底部的内容沉到 Timeline 之下 */}
+      {/* 底部渐隐底衬：溢出到底部的内容半透明地沉到 Timeline 之下 */}
       <div
         style={{
           position: 'absolute',
@@ -27,7 +27,7 @@ export const Chrome: React.FC<{ segments: Segment[] }> = ({ segments }) => {
           right: 0,
           top: layout.timelineTop - 60,
           bottom: 0,
-          background: `linear-gradient(180deg, rgba(11,16,32,0) 0%, ${colors.bg} 45%)`,
+          background: `linear-gradient(180deg, ${alpha(colors.bg, 0)} 0%, ${alpha(colors.bg, 0.8)} 45%)`,
           opacity: visibility,
         }}
       />
