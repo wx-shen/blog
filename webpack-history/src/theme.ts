@@ -69,12 +69,17 @@ export const toolColors = {
   vite: '#B48CF5',
   turbopack: '#F07F8F',
   rspack: '#4FD1C5',
+  rollup: '#E4A0F7',
+  parcel: '#D4B483',
   cra: '#E879A6',
   vuecli: '#6FCF97',
   nextjs: '#C9CED6',
 } as const;
 
 export type ToolId = keyof typeof toolColors;
+
+/** 分类配色：依次取用（第 8 幕的跨端分类等），均为已有色值 */
+export const categoryColors = [base.accent, '#B48CF5', base.success, '#E8D36A', '#F0A6A0'] as const;
 
 /** 文件类型配色（文件图标、依赖图节点的色点） */
 export const fileColors = {

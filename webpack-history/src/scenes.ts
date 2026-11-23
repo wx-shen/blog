@@ -667,7 +667,7 @@ export const scene07 = {
 } as const satisfies SceneConfig;
 
 // ─────────────────────────────────────────────────────────────
-// 8. 走出浏览器（待制作）
+// 8. 走出浏览器
 // ─────────────────────────────────────────────────────────────
 export const scene08 = {
   id: 'scene08-beyond',
@@ -679,11 +679,34 @@ export const scene08 = {
   chrome: 'always',
   audio: 'audio/scene08-beyond.mp3',
   narration: "webpack 的影响，远不止浏览器。\n\n它的 target 选项能为 Node.js、Electron、Web Worker 等不同环境生成产物；loader 和 plugin 又能把代码改造成几乎任何格式。于是，一大批跨端方案，都把 webpack 当成了编译底座。\n\n小程序领域，Taro 从 2.0 开始基于 webpack 编译，uni-app 的 Vue 2 版本建立在 Vue CLI 之上，微信官方的 kbone 用 webpack 插件把网页代码转成小程序，快应用的工具链至今仍在用 webpack。原生渲染方向，Weex、Hippy 和 NativeScript 都用 webpack 打包。桌面端有 Electron Forge 的 webpack 插件；服务端，Next.js 用它打包服务端渲染的代码；微前端框架 qiankun，则要求子应用用 webpack 打包成 UMD 格式。\n\nwebpack，成了前端工程的通用编译器。",
-  copy: {},
+  copy: {
+    /**
+     * webpack 官方支持的部分 target（已核对：configuration/target 文档）。
+     * https://github.com/webpack/webpack.js.org/blob/main/src/content/configuration/target.mdx
+     */
+    targetsLabel: 'target',
+    targets: ['web', 'webworker', 'node', 'electron-main', 'electron-renderer'],
+    targetsCaption: '同一套模块图，为不同运行环境生成产物',
+    /**
+     * 跨端方案（已核对 2026-11，出处见 narration.md 第 8 幕）：Taro 2.0 起基于 webpack；uni-app Vue 2 版基于 vue-cli；
+     * kbone 用 mp-webpack-plugin；快应用 hap-toolkit 至今锁定 webpack 5；weex-loader 是 webpack loader；
+     * Hippy demo 构建基于 webpack；NativeScript CLI 默认 bundler 为 webpack；Electron Forge 有 webpack 插件；
+     * Next.js webpack 模式下构建服务端产物；qiankun 要求子应用打包成 UMD。
+     */
+    categories: [
+      { name: '小程序', items: ['Taro', 'uni-app（Vue 2）', 'kbone', '快应用'] },
+      { name: '原生渲染', items: ['Weex', 'Hippy', 'NativeScript'] },
+      { name: '桌面', items: ['Electron Forge'] },
+      { name: '服务端', items: ['Next.js 服务端渲染'] },
+      { name: '微前端', items: ['qiankun（UMD 子应用）'] },
+    ],
+    /** 解读 */
+    statement: 'webpack，成了前端工程的通用编译器',
+  },
 } as const satisfies SceneConfig;
 
 // ─────────────────────────────────────────────────────────────
-// 9. 为什么修不好（待制作）
+// 9. 为什么修不好
 // ─────────────────────────────────────────────────────────────
 export const scene09 = {
   id: 'scene09-limits',
@@ -695,7 +718,30 @@ export const scene09 = {
   chrome: 'always',
   audio: 'audio/scene09-limits.mp3',
   narration: "那么，webpack 为什么没能一直快下去？问题出在底层设计的三个前提。\n\n第一，开发时要先全量打包，依赖图建完才能启动。第二，构建主要跑在 JavaScript 的单线程上，thread-loader 也只能把 loader 分到多个进程里。第三，插件直接操作 compiler、compilation 这些内部对象，生态越繁荣，内核越难大改。\n\n持久化缓存、按需编译，这些补救都有效，却动不了这三个前提。要突破，只能另起炉灶。",
-  copy: {},
+  copy: {
+    question: '为什么没能一直快下去？',
+    /** 三个前提（第三条中「生态越繁荣，内核越难大改」为解读） */
+    premises: [
+      { title: '开发时先全量打包', detail: '依赖图建完，开发服务器才能启动' },
+      { title: '构建主要跑在 JavaScript 单线程上', detail: '并行只到 loader 一层' },
+      { title: '插件直接操作内部对象', detail: '生态越繁荣，内核越难大改' },
+    ],
+    /**
+     * 补救及其局限（已核对：持久化缓存需手动开启、只加速重复构建；experiments.lazyCompilation 5.17.0 起提供，实验特性；
+     * thread-loader 把 loader 放进 worker 池）。row 指向第几个前提。
+     */
+    remediesLabel: '补救',
+    lockedLabel: '前提不变',
+    remedies: [
+      { name: '持久化缓存', note: '只加速重复构建', row: 0 },
+      { name: 'lazyCompilation', note: '按需编译，实验特性（5.17 起）', row: 0 },
+      { name: 'thread-loader', note: '只并行 loader', row: 1 },
+    ],
+    cost: {
+      text: '补救有效，却动不了这三个前提',
+      notes: ['要突破，只能另起炉灶'],
+    },
+  },
 } as const satisfies SceneConfig;
 
 // ─────────────────────────────────────────────────────────────
@@ -714,12 +760,12 @@ export const scene10 = {
   /**
    * 时间轴随工具登场逐年推进，避免第 8 幕从 2020 一次跳到 2026：
    * Turbopack 登场前滑到 2022，Rspack 登场前滑到 2023，本幕收尾时滑到 2024。
-   * 某个工具的 year 与某个 stop 的 year 相同时，该工具会在这次滑动结束后才登场（见 Scene07Challengers）。
+   * 某个工具的 year 与某个 stop 的 year 相同时，该工具会在这次滑动结束后才登场（见 Scene10Challengers）。
    */
   yearStops: [
-    { atFrame: 526, year: 2022 },
-    { atFrame: 586, year: 2023 },
-    { atFrame: 760, year: 2024 },
+    { atFrame: 560, year: 2022 },
+    { atFrame: 680, year: 2023 },
+    { atFrame: 1280, year: 2024 },
   ],
   copy: {
     /**
@@ -749,6 +795,14 @@ export const scene10 = {
      *   “兼容绝大多数 webpack 配置和 API”，并非全部插件可用。
      *   https://github.com/web-infra-dev/rspack/blob/main/website/docs/en/blog/announcing-0-1.mdx
      */
+    /**
+     * 前史（已核对：Rollup 2015 年早期 README 已输出 ES 模块并做作用域合并；parcel-bundler 1.0.0 发布于 2017-12-05，
+     * 官方描述 "zero configuration web application bundler"）。
+     */
+    prelude: [
+      { tool: 'rollup', name: 'Rollup', year: 2015, description: '2015 · 以打包库见长，从一开始就把模块合并进同一个作用域' },
+      { tool: 'parcel', name: 'Parcel', year: 2017, description: '2017 · 主打零配置' },
+    ],
     tools: [
       // 说明按「各自换掉了 webpack 的哪一层」来写（解读性表述，事实部分见上方出处）
       { tool: 'esbuild', name: 'esbuild', year: 2020, description: '换掉「用 JavaScript 实现」：Go 编写，多核并行' },
@@ -760,7 +814,7 @@ export const scene10 = {
 } as const satisfies SceneConfig;
 
 // ─────────────────────────────────────────────────────────────
-// 11. 迁移潮（待制作）
+// 11. 迁移潮
 // ─────────────────────────────────────────────────────────────
 export const scene11 = {
   id: 'scene11-migration',
@@ -771,8 +825,34 @@ export const scene11 = {
   durationSeconds: 40,
   chrome: 'always',
   audio: 'audio/scene11-migration.mp3',
+  // 时间轴随迁移墙推进：create-react-app 一行前滑到 2025，Nest.js 一行前滑到 2026（见 Scene11Migration）
+  yearStops: [
+    { atFrame: 150, year: 2025 },
+    { atFrame: 390, year: 2026 },
+  ],
   narration: "接下来几年，主流框架陆续换了引擎。2023 年，Angular 17 默认改用基于 esbuild 的构建；2025 年 2 月，React 团队宣布不再推荐用 create-react-app 创建新项目；同年 10 月，Next.js 16 把默认打包器换成了 Turbopack；2026 年，Nest.js 12 的 monorepo 默认改用 Rspack。\n\n跨端领域，Taro 4 和 uni-app 的 Vue 3 版本支持了 Vite，Re.Pack 和字节跳动的 Lynx，则选择了 Rspack。",
-  copy: {},
+  copy: {
+    /**
+     * 迁移墙（已核对 2026-11）：Angular 17（2023-11）application builder 基于 esbuild，开发服务器用 Vite；
+     * React 博客 2025-02-14 宣布不再推荐用 CRA 创建新应用；Next.js 16.0.0（2025-10-22）dev / build 默认 Turbopack；
+     * Nest.js 12（2026-08）monorepo 默认改用 Rspack；Taro 4.0（2024-07）可选 Vite；uni-app Vue 3 版基于 Vite；
+     * Re.Pack 5（2025-02）支持 Rspack；Lynx（2025-03 开源）构建工具 Rspeedy 基于 Rspack。
+     */
+    frameworksLabel: '主流框架',
+    frameworks: [
+      { name: 'Angular 17', date: '2023-11', change: '默认构建改用 esbuild', tool: 'esbuild' },
+      { name: 'create-react-app', date: '2025-02', change: '不再推荐用于新项目', tool: '' },
+      { name: 'Next.js 16', date: '2025-10', change: '默认打包器改用 Turbopack', tool: 'turbopack' },
+      { name: 'Nest.js 12', date: '2026-08', change: 'monorepo 默认改用 Rspack', tool: 'rspack' },
+    ],
+    crossLabel: '跨端',
+    cross: [
+      { name: 'Taro 4', date: '2024-07', change: '新增 Vite 编译内核', tool: 'vite' },
+      { name: 'uni-app（Vue 3）', date: '', change: '基于 Vite', tool: 'vite' },
+      { name: 'Re.Pack 5', date: '2025-02', change: '支持 Rspack', tool: 'rspack' },
+      { name: 'Lynx', date: '2025-03', change: '构建工具基于 Rspack', tool: 'rspack' },
+    ],
+  },
 } as const satisfies SceneConfig;
 
 // ─────────────────────────────────────────────────────────────
@@ -804,16 +884,22 @@ export const scene12 = {
      * https://webpack.js.org/blog/2026-11-16-css-and-html-are-built-in/
      */
     statementNote: '原生 CSS、HTML、TypeScript 支持已在 webpack 5 中落地，到 v6 将不再是实验特性',
-    /** 片尾标题（与开场主标题一致；前段用强调色） */
-    endTitleAccent: 'webpack',
-    endTitleRest: ' 发展史',
-    /** 片尾副标题（待定，空字符串则不显示） */
-    endSubtitle: '',
+    /**
+     * 2026 年的现状（已核对）：npm 上 5.113.0 发布于 2026-11-19，2026 年基本每月一个 minor；
+     * 5.108.0（2026-06）新增 bun、deno target；Roadmap 2026 称核心多线程 API 设计中；
+     * Module Federation 2.0 于 2026-02 宣布稳定，独立维护，支持 webpack、Rspack、Rollup、Rolldown、Vite 等。
+     */
+    facts: [
+      { label: '5.113', text: '2026-11-19 · 仍保持每月一个小版本' },
+      { label: 'target', text: '新增 bun、deno 运行目标（5.108）' },
+      { label: '多线程', text: '核心多线程 API 设计中（Roadmap 2026）' },
+      { label: 'MF 2.0', text: '模块联邦独立维护，跨多种打包工具使用' },
+    ],
   },
 } as const satisfies SceneConfig;
 
 // ─────────────────────────────────────────────────────────────
-// 13. 尾声（待制作）
+// 13. 尾声
 // ─────────────────────────────────────────────────────────────
 export const scene13 = {
   id: 'scene13-outro',
@@ -824,8 +910,18 @@ export const scene13 = {
   durationSeconds: 15,
   chrome: 'always',
   audio: 'audio/scene13-outro.mp3',
+  // 片尾标题出现前（Scene13Outro 的 T.end），时间轴与左上角年份退场
+  chromeExitAt: 250,
   narration: "打包工具会更替，问题与思想会留下。每一个方案，都带着它的代价。这就是 webpack 的故事。",
-  copy: {},
+  copy: {
+    recapLabel: '一路走来的代价',
+    lines: ['打包工具会更替', '问题与思想会留下'],
+    /** 片尾标题（与开场主标题一致；前段用强调色） */
+    endTitleAccent: 'webpack',
+    endTitleRest: ' 发展史',
+    /** 片尾副标题（待定，空字符串则不显示） */
+    endSubtitle: '',
+  },
 } as const satisfies SceneConfig;
 
 export const scenes = [
@@ -843,11 +939,5 @@ export const scenes = [
   scene12,
   scene13,
 ] as const;
-
-/** 界面上的通用文字 */
-export const ui = {
-  /** 尚未制作的幕在预览中显示的提示 */
-  pendingScene: '本幕制作中',
-} as const;
 
 export type SceneId = (typeof scenes)[number]['id'];

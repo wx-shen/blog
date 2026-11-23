@@ -13,13 +13,18 @@ import { colors, fonts, fontSize, layout, space, toolColors, transition, video }
 const COPY = scene10.copy;
 
 // ───────────── 时间表（帧，相对内容起点） ─────────────
+// 与旁白对齐：① 前史 Rollup / Parcel → ② 2020 年 esbuild、Vite → Turbopack（2022）→ Rspack（2023）
+// → ③ 柱状图（时间轴走到 2024）→ 代价：没有银弹
 const T = {
-  chart: 20,
-  barStagger: 30,
-  source: 40,
-  chartOut: 400,
-  badges: 430,
+  prelude: 20,
+  preludeStep: 60,
+  preludeOut: 330,
+  badges: 380,
   badgeStep: 60,
+  badgesOut: 840,
+  chart: 870,
+  barStagger: 30,
+  source: 900,
 } as const;
 
 /**
@@ -37,19 +42,50 @@ const BADGE_WIDTH = (CONTENT_WIDTH - BADGE_GAP) / 2;
 /** 数据来源文字：画面右下角（正文区底边，Timeline 之上） */
 const SOURCE_TOP = layout.contentBottom - fontSize.small * 1.5;
 
+const BadgeGrid: React.FC<{
+  items: readonly { tool: keyof typeof toolColors; name: string; description: string }[];
+  delayOf: (i: number) => number;
+  out: number;
+}> = ({ items, delayOf, out }) => (
+  <div
+    style={{
+      position: 'absolute',
+      left: space.safe,
+      top: layout.contentTop + 20,
+      width: CONTENT_WIDTH,
+      display: 'flex',
+      flexWrap: 'wrap',
+      columnGap: BADGE_GAP,
+      rowGap: space.xl,
+      opacity: out,
+    }}
+  >
+    {items.map((t, i) => (
+      <ToolBadge key={t.name} name={t.name} color={toolColors[t.tool]} description={t.description} delay={delayOf(i)} width={BADGE_WIDTH} />
+    ))}
+  </div>
+);
+
 export const Scene10Challengers: React.FC<SceneProps> = ({ duration }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const chartOut = exitProgress(frame, T.chartOut);
+  const preludeOut = exitProgress(frame, T.preludeOut);
+  const badgesOut = exitProgress(frame, T.badgesOut);
 
   return (
     <AbsoluteFill>
       <SceneTitle title={scene10.title} years={scene10.yearsLabel} />
 
-      {/* ① 构建耗时柱状图：数据来自 src/data/benchmark.ts */}
-      {chartOut > 0 ? (
-        <AbsoluteFill style={{ opacity: chartOut }}>
-          <div style={{ position: 'absolute', left: space.safe, top: layout.contentTop + 20 }}>
+      {/* ① 前史：另起炉灶的人早就有了 */}
+      {preludeOut > 0 ? <BadgeGrid items={COPY.prelude} delayOf={(i) => T.prelude + i * T.preludeStep} out={preludeOut} /> : null}
+
+      {/* ② 新一代工具：各自换掉了 webpack 的哪一层 */}
+      {frame >= T.badges && badgesOut > 0 ? <BadgeGrid items={COPY.tools} delayOf={badgeDelay} out={badgesOut} /> : null}
+
+      {/* ③ 构建耗时柱状图：数据来自 src/data/benchmark.ts */}
+      {frame >= T.chart ? (
+        <>
+          <div style={{ position: 'absolute', left: space.safe, top: layout.contentTop + 20, ...enterExitStyle(frame, fps, T.chart, null) }}>
             <BarChart
               caption={benchmark.caption}
               data={benchmark.entries.map((e) => ({
@@ -79,41 +115,10 @@ export const Scene10Challengers: React.FC<SceneProps> = ({ duration }) => {
           >
             {benchmark.source}
           </div>
-        </AbsoluteFill>
+        </>
       ) : null}
 
-      {/* ② 四个工具依次登场 */}
-      {frame >= T.badges ? (
-        <div
-          style={{
-            position: 'absolute',
-            left: space.safe,
-            top: layout.contentTop + 20,
-            width: CONTENT_WIDTH,
-            display: 'flex',
-            flexWrap: 'wrap',
-            columnGap: BADGE_GAP,
-            rowGap: space.xl,
-          }}
-        >
-          {COPY.tools.map((t, i) => (
-            <ToolBadge
-              key={t.name}
-              name={t.name}
-              color={toolColors[t.tool]}
-              description={t.description}
-              delay={badgeDelay(i)}
-              width={BADGE_WIDTH}
-            />
-          ))}
-        </div>
-      ) : null}
-      <CostBeat
-        at={duration - transition.costLead}
-        label={thread.costLabel}
-        text={scene10.copy.cost.text}
-        notes={scene10.copy.cost.notes}
-      />
+      <CostBeat at={duration - transition.costLead} label={thread.costLabel} text={COPY.cost.text} notes={COPY.cost.notes} />
     </AbsoluteFill>
   );
 };
