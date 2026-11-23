@@ -114,7 +114,10 @@ export const scene02 = {
     ],
     /** 溢出变色后出现的痛点（待核对：分镜外补充，不需要可清空数组） */
     pains: ['加载顺序全靠手动维护', '变量全部挂在全局作用域', '文件越多，请求越多'],
-    /** 三个 ToolBadge 及各自下方的一行说明（待核对） */
+    /**
+     * 三个 ToolBadge 及各自下方的一行说明（已核对 2026-11）
+     * https://requirejs.org/docs/whyamd.html · https://browserify.org/ · https://gruntjs.com/
+     */
     tools: [
       { tool: 'requirejs', name: 'RequireJS', description: '用 AMD 规范在浏览器中异步加载模块' },
       { tool: 'browserify', name: 'Browserify', description: '让浏览器也能使用 Node 风格的 require()' },
@@ -151,6 +154,8 @@ export const scene03 = {
     output: 'bundle.js',
     outputLabel: 'JS',
     keywords: ['一切皆模块', '代码分割'],
+    // 已核对：Tobias Koppers（sokra），仓库首个提交 2012-03-10；动机是实现 GWT 式的代码分割。
+    // https://github.com/medikoo/modules-webmake/issues/7
     authorLabel: '作者',
     author: 'Tobias Koppers',
   },
@@ -411,14 +416,24 @@ export const scene07 = {
   ],
   copy: {
     /**
-     * 柱状图之后依次登场的四个工具、各自的一行定位说明（待核对），
-     * 以及驱动时间轴推进的首次公开年份（待核对，不显示在画面上）
+     * 柱状图之后依次登场的四个工具、各自的一行定位说明，
+     * 以及驱动时间轴推进的首次公开年份（不显示在画面上）。已核对 2026-11：
+     * - esbuild：Evan Wallace 用 Go 编写，2020-01 首次发布；解析与代码生成可完全并行。
+     *   https://github.com/evanw/esbuild
+     * - Vite：首个版本 0.1.0 发布于 2020-04-21；开发时基于浏览器原生 ESM 按需转换。
+     *   （Vite 8 起依赖预构建与生产构建统一改用 Rolldown，本幕不涉及。）
+     *   https://registry.npmjs.org/vite
+     * - Turbopack：Vercel 用 Rust 编写，2022-10 随 Next.js 13 公布，基于增量计算框架 turbo-tasks。
+     *   https://github.com/vercel/next.js/tree/canary/turbopack
+     * - Rspack：字节跳动 Web Infra 团队用 Rust 编写，2023-03-06 开源（0.1）；官方表述为
+     *   “兼容绝大多数 webpack 配置和 API”，并非全部插件可用。
+     *   https://github.com/web-infra-dev/rspack/blob/main/website/docs/en/blog/announcing-0-1.mdx
      */
     tools: [
-      { tool: 'esbuild', name: 'esbuild', year: 2020, description: '用 Go 编写，极快的打包与转译' },
+      { tool: 'esbuild', name: 'esbuild', year: 2020, description: '用 Go 编写，多核并行的打包与转译工具' },
       { tool: 'vite', name: 'Vite', year: 2020, description: '开发时基于浏览器原生 ES 模块按需编译' },
-      { tool: 'turbopack', name: 'Turbopack', year: 2022, description: '用 Rust 编写的增量打包工具' },
-      { tool: 'rspack', name: 'Rspack', year: 2023, description: '用 Rust 编写，兼容 webpack 的配置与插件生态' },
+      { tool: 'turbopack', name: 'Turbopack', year: 2022, description: '用 Rust 编写，基于增量计算的打包工具' },
+      { tool: 'rspack', name: 'Rspack', year: 2023, description: '用 Rust 编写，兼容绝大多数 webpack 配置与插件' },
     ],
   },
 } as const satisfies SceneConfig;
