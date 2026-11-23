@@ -7,7 +7,7 @@ import { ToolBadge } from '../components/ToolBadge';
 import { enterExitStyle, exitProgress } from '../lib/anim';
 import { benchmark } from '../data/benchmark';
 import { scene07 } from '../scenes';
-import { colors, fonts, fontSize, layout, space, toolColors, video } from '../theme';
+import { colors, fonts, fontSize, layout, space, toolColors, transition, video } from '../theme';
 
 const COPY = scene07.copy;
 
@@ -20,6 +20,15 @@ const T = {
   badges: 430,
   badgeStep: 60,
 } as const;
+
+/**
+ * 工具登场的帧：默认按 badgeStep 依次出现；若该工具的年份对应 scenes.ts 里的一个 yearStop，
+ * 则等时间轴滑到该年份之后再登场（先滑动、再入场，同屏运动元素不超过 3 个）。
+ */
+const badgeDelay = (i: number): number => {
+  const stop = scene07.yearStops.find((s) => s.year === COPY.tools[i].year);
+  return stop ? stop.atFrame + transition.timelineSlide : T.badges + i * T.badgeStep;
+};
 
 const CONTENT_WIDTH = video.width - space.safe * 2;
 const BADGE_GAP = space.lg;
@@ -92,7 +101,7 @@ export const Scene07Challengers: React.FC<SceneProps> = () => {
               name={t.name}
               color={toolColors[t.tool]}
               description={t.description}
-              delay={T.badges + i * T.badgeStep}
+              delay={badgeDelay(i)}
               width={BADGE_WIDTH}
             />
           ))}

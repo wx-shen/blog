@@ -383,13 +383,26 @@ export const scene07 = {
   chrome: 'always',
   audio: 'audio/scene07-challengers.mp3',
   narration: NARRATION_TODO,
+  /**
+   * 时间轴随工具登场逐年推进，避免第 8 幕从 2020 一次跳到 2026：
+   * Turbopack 登场前滑到 2022，Rspack 登场前滑到 2023，本幕收尾时滑到 2024。
+   * 某个工具的 year 与某个 stop 的 year 相同时，该工具会在这次滑动结束后才登场（见 Scene07Challengers）。
+   */
+  yearStops: [
+    { atFrame: 526, year: 2022 },
+    { atFrame: 586, year: 2023 },
+    { atFrame: 760, year: 2024 },
+  ],
   copy: {
-    /** 柱状图之后依次登场的四个工具及各自的一行定位说明（待核对） */
+    /**
+     * 柱状图之后依次登场的四个工具、各自的一行定位说明（待核对），
+     * 以及驱动时间轴推进的首次公开年份（待核对，不显示在画面上）
+     */
     tools: [
-      { tool: 'esbuild', name: 'esbuild', description: '用 Go 编写，极快的打包与转译' },
-      { tool: 'vite', name: 'Vite', description: '开发时基于浏览器原生 ES 模块按需编译' },
-      { tool: 'turbopack', name: 'Turbopack', description: '用 Rust 编写的增量打包工具' },
-      { tool: 'rspack', name: 'Rspack', description: '用 Rust 编写，兼容 webpack 的配置与插件生态' },
+      { tool: 'esbuild', name: 'esbuild', year: 2020, description: '用 Go 编写，极快的打包与转译' },
+      { tool: 'vite', name: 'Vite', year: 2020, description: '开发时基于浏览器原生 ES 模块按需编译' },
+      { tool: 'turbopack', name: 'Turbopack', year: 2022, description: '用 Rust 编写的增量打包工具' },
+      { tool: 'rspack', name: 'Rspack', year: 2023, description: '用 Rust 编写，兼容 webpack 的配置与插件生态' },
     ],
   },
 } as const satisfies SceneConfig;
