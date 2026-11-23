@@ -31,6 +31,8 @@ export type SceneConfig = {
   yearStops?: readonly { atFrame: number; year: number }[];
   /** Timeline 与 YearCounter 在本幕内退场的帧（相对内容起点），用于片尾 */
   chromeExitAt?: number;
+  /** 有音频时，音频之后留白的秒数；省略则用 theme.audioTailSeconds（0.4 秒）。片尾需要更长的停留 */
+  audioTailSeconds?: number;
   copy: Record<string, unknown>;
 };
 
@@ -912,6 +914,8 @@ export const scene13 = {
   audio: 'audio/scene13-outro.mp3',
   // 片尾标题出现前（Scene13Outro 的 T.end），时间轴与左上角年份退场
   chromeExitAt: 250,
+  // 旁白念完后，片尾标题还要停留几秒
+  audioTailSeconds: 4,
   narration: "打包工具会更替，问题与思想会留下。每一个方案，都带着它的代价。这就是 webpack 的故事。",
   copy: {
     recapLabel: '一路走来的代价',
