@@ -9,9 +9,10 @@ import { CostBeat } from '../components/CostBeat';
 import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { enterProgress, moveProgress, rangeProgress, slideEasing } from '../lib/anim';
+import { costCue, cue } from '../lib/cues';
 import { bezierPoint, type Point } from '../lib/geometry';
 import { scene03, thread } from '../scenes';
-import { colors, fileColors, fonts, fontSize, fontWeight, layout, motion, space, transition, video } from '../theme';
+import { colors, fileColors, fonts, fontSize, fontWeight, layout, motion, space, video } from '../theme';
 
 const COPY = scene03.copy;
 
@@ -26,29 +27,36 @@ const KEYWORDS_TOP = 690;
 const AUTHOR_TOP = 800;
 const LABEL_TOP = layout.contentTop;
 
-// 本幕时间表（帧）。① 起源段相对内容起点；② 汇入立方体的段落整体延后 FLOW_START 帧，
+// 本幕时间表（帧），按旁白对齐。① 起源段相对内容起点；② 汇入立方体的段落整体延后 FLOW_START 帧，
 // 其内部时间（T）相对该段落起点。
+const at = (phrase: string, offset = 0) => cue(scene03.id, phrase, offset);
 const ORIGIN = {
-  issue: 30,
-  issueZh: 70,
-  commit: 210,
-  commitNote: 240,
-  out: 400,
+  issue: at('2012 年 2 月'),
+  issueZh: at('2012 年 2 月', 90),
+  commit: at('2012 年 3 月'),
+  commitNote: at('2012 年 3 月', 30),
+  out: at('webpack 的核心想法很简单', -14),
 } as const;
-const FLOW_START = 420;
+const FLOW_START = at('webpack 的核心想法很简单');
+/** 旁白时间换算到 ② 段落内部 */
+const flowAt = (phrase: string, offset = 0) => at(phrase, offset) - FLOW_START;
 
+const iconsIn = Math.max(flowAt('JavaScript 是模块'), 30);
+const fly = Math.max(flowAt('它从入口文件出发'), iconsIn + 70);
+const output = fly + 128;
+const chunk = Math.max(flowAt('遇到需要按需加载的部分'), output + 50);
 const T = {
-  iconsIn: 6,
+  iconsIn,
   iconStep: 16,
-  cubeIn: 84,
-  fly: 140,
+  cubeIn: 10,
+  fly,
   flyStep: 24,
   flyDur: 46,
-  output: 290,
-  chunk: 370,
-  keywords: 450,
-  keywordStep: 40,
-  author: 570,
+  output,
+  chunk,
+  /** 两个关键词：「一切皆模块」随核心想法出现，「代码分割」随按需加载出现 */
+  keywords: [40, chunk + 30],
+  author: chunk + 80,
 } as const;
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
@@ -88,7 +96,7 @@ export const Scene03Birth: React.FC<SceneProps> = ({ duration }) => {
       </Sequence>
 
       <CostBeat
-        at={duration - transition.costLead}
+        at={costCue(scene03.id, '不过，这里也埋下', duration)}
         label={thread.costLabel}
         text={scene03.copy.cost.text}
         notes={scene03.copy.cost.notes}
@@ -289,7 +297,7 @@ const BirthFlow: React.FC = () => {
         }}
       >
         {COPY.keywords.map((k, i) => (
-          <Pill key={k} text={k} delay={T.keywords + i * T.keywordStep} />
+          <Pill key={k} text={k} delay={T.keywords[i]} />
         ))}
       </div>
 

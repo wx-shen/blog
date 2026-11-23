@@ -7,27 +7,30 @@ import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { ToolBadge } from '../components/ToolBadge';
 import { enterProgress, enterStyle, exitProgress, rangeProgress } from '../lib/anim';
+import { costCue, cue } from '../lib/cues';
 import { scene06, thread } from '../scenes';
-import { alpha, colors, fonts, fontSize, fontWeight, layout, lineHeight, space, toolColors, transition, video } from '../theme';
+import { alpha, colors, fonts, fontSize, fontWeight, layout, lineHeight, space, toolColors, video } from '../theme';
 
 const COPY = scene06.copy;
 const W = COPY.wrappers;
 
 // ───────────── 时间表（帧，相对内容起点） ─────────────
-// 与旁白对齐：① 配置越写越长 +「webpack 配置工程师」 → ② 把配置藏进框架 → 代价
+// 按旁白对齐：① 配置越写越长 +「webpack 配置工程师」 → ② 把配置藏进框架（框架名随旁白逐个出现）→ 代价
+const at = (phrase: string, offset = 0) => cue(scene06.id, phrase, offset);
+const codeOut = at('解决的办法，是把配置藏起来', -22);
 const T = {
   codeIn: 10,
   scrollStart: 30,
-  scrollEnd: 330,
-  meme: 200,
-  memeNote: 236,
-  codeOut: 420,
+  scrollEnd: codeOut - 30,
+  meme: at('配置复杂到仿佛需要专人维护'),
+  memeNote: at('配置复杂到仿佛需要专人维护', 36),
+  codeOut,
   // ② 上层封装：自下而上搭起三层
-  bottom: 450,
-  frameworks: 510,
-  frameworkStep: 30,
-  top: 640,
-  caption: 700,
+  bottom: at('解决的办法，是把配置藏起来'),
+  /** create-react-app、Vue CLI、Next.js 各自在旁白念到时出现 */
+  frameworks: [at('create-react-app'), at('Vue CLI'), at('Next.js')],
+  top: at('让大多数开发者'),
+  caption: at('让大多数开发者', 60),
 } as const;
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
@@ -156,7 +159,7 @@ export const Scene06ConfigPain: React.FC<SceneProps> = ({ duration }) => {
                 key={f.name}
                 name={f.name}
                 color={toolColors[f.tool]}
-                delay={T.frameworks + i * T.frameworkStep}
+                delay={T.frameworks[i]}
                 width={fwWidth}
               />
             ))}
@@ -173,7 +176,7 @@ export const Scene06ConfigPain: React.FC<SceneProps> = ({ duration }) => {
         </>
       ) : null}
 
-      <CostBeat at={duration - transition.costLead} label={thread.costLabel} text={COPY.cost.text} notes={COPY.cost.notes} />
+      <CostBeat at={costCue(scene06.id, '问题并没有消失', duration)} label={thread.costLabel} text={COPY.cost.text} notes={COPY.cost.notes} />
     </AbsoluteFill>
   );
 };

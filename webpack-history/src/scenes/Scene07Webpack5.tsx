@@ -8,16 +8,24 @@ import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { Terminal, type TerminalLine } from '../components/Terminal';
 import { enterExitStyle, enterProgress, enterStyle, rangeProgress } from '../lib/anim';
+import { costCue, cue } from '../lib/cues';
 import { scene07, thread } from '../scenes';
-import { alpha, colors, fonts, fontSize, fontWeight, layout, space, transition, video } from '../theme';
+import { alpha, colors, fonts, fontSize, fontWeight, layout, space, video } from '../theme';
 
 const COPY = scene07.copy;
 const FED = COPY.federation;
 
 // ───────────── 时间表（帧，相对内容起点） ─────────────
-// 与旁白对齐：发布 → 持久化缓存 → 模块联邦 → 资源模块 → 稳定 ID → 移除 Node polyfill → 代价
-/** 每个特性的起止帧：左侧列表点亮、右侧面板切换 */
-const PANELS = [60, 300, 560, 760, 960] as const;
+// 按旁白对齐：发布 → 持久化缓存 → 模块联邦 → 资源模块 → 稳定 ID → 移除 Node polyfill → 代价
+const at = (phrase: string, offset = 0) => cue(scene07.id, phrase, offset);
+/** 每个特性的起止帧：旁白念到该特性时，左侧列表点亮、右侧面板切换 */
+const PANELS = [
+  at('持久化缓存可以把构建结果'),
+  at('模块联邦让多个独立部署'),
+  at('资源模块取代了'),
+  at('生产模式默认使用稳定的模块 ID'),
+  at('它也做了一次大胆的取舍'),
+] as const;
 const T = {
   release: 0,
   panelDelay: 16,
@@ -35,8 +43,8 @@ const T = {
   flowPeriod: 70,
   flowTravel: 44,
   flowOffset: 23,
-  // ⑤ polyfill（相对 PANELS[4]）
-  polyCaption: 220,
+  // ⑤ polyfill（相对 PANELS[4]）：念到「产物更干净了」时出说明
+  polyCaption: at('产物更干净了') - PANELS[4],
 } as const;
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
@@ -271,7 +279,7 @@ const IdsPanel: React.FC<{ start: number }> = ({ start }) => {
 export const Scene07Webpack5: React.FC<SceneProps> = ({ duration }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const costAt = duration - transition.costLead;
+  const costAt = costCue(scene07.id, '然而，缓存只能加速', duration);
 
   const panel = (i: number, content: React.ReactNode) => {
     const start = PANELS[i] + T.panelDelay;

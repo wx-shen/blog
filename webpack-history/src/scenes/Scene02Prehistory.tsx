@@ -7,6 +7,7 @@ import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { ToolBadge } from '../components/ToolBadge';
 import { enterExitStyle, exitProgress, moveProgress, rangeProgress } from '../lib/anim';
+import { cue } from '../lib/cues';
 import { scene02 } from '../scenes';
 import { fontSize, layout, space, toolColors, transition, video } from '../theme';
 
@@ -15,44 +16,48 @@ const CJS = COPY.commonjs;
 
 const LINES = COPY.scripts.map((s) => `<script src="${s}"></script>`);
 
+const at = (phrase: string, offset = 0) => cue(scene02.id, phrase, offset);
+
 /**
- * 每行出现的帧：间隔从 16 帧逐渐缩短到 6 帧，制造"失控"感。
+ * 每行出现的帧：间隔逐渐缩短，制造"失控"感；整体缩放到「脚本按顺序加载」之前堆满并溢出。
  * 单行入场 12 帧（motion.lineEnterFrames），同时运动的行不超过 2 行。
  */
 const LINE_FRAMES = (() => {
-  const frames: number[] = [];
-  let f = 24;
+  const raw: number[] = [];
+  let f = 0;
   for (let i = 0; i < LINES.length; i++) {
-    frames.push(Math.round(f));
+    raw.push(f);
     f += Math.max(6, 16 - i * 0.8);
   }
-  return frames;
+  const first = 20;
+  const last = Math.max(first + 90, at('脚本按顺序加载', -30));
+  const k = (last - first) / raw[raw.length - 1];
+  return raw.map((x) => Math.round(first + x * k));
 })();
 
 const LAST_LINE = LINE_FRAMES[LINE_FRAMES.length - 1];
 
-// 本幕时间表（帧，相对内容起点），与旁白四段对齐：
-// ① script 标签之痛 → ② Node.js 与 CommonJS → ③ 三个工具各自的出路 → ④ 各管一段
+// 本幕时间表（帧，相对内容起点），按旁白对齐：
+// ① script 标签之痛（三条痛点随旁白逐条出现）→ ② Node.js 与 CommonJS → ③ 三个工具（随时间轴年份登场）→ ④ 各管一段
 const T = {
   warnStart: LAST_LINE + 6,
   warnEnd: LAST_LINE + 30,
-  pain: LAST_LINE + 44,
-  painStep: 30,
-  collapse: LAST_LINE + 190,
+  pains: [at('脚本按顺序加载'), at('所有变量都挂在全局'), at('文件越多，请求也越多')],
+  collapse: at('2009 年，Node.js', -36),
   collapseFrames: 30,
   // ② CommonJS
-  nodePanel: 420,
-  browserPanel: 450,
-  nodeResult: 520,
-  browserResult: 560,
-  cjsOut: 760,
-  // ③ 工具：时间轴先滑到该工具的年份（scenes.ts 的 yearStops），徽章随后登场，下方轮流演示
+  nodePanel: at('2009 年，Node.js'),
+  browserPanel: at('2009 年，Node.js', 30),
+  nodeResult: at('一个文件就是一个模块'),
+  browserResult: at('可是，浏览器并不认识'),
+  cjsOut: at('社区开始各自寻找出路'),
+  // ③ 工具：时间轴先滑到该工具的年份（scenes.ts 的 yearStops，同样按旁白取帧），徽章随后登场，下方轮流演示
   demoDelay: 30,
-  demosOut: 1480,
+  demosOut: at('加载、打包、构建，各管一段', -14),
   // ④ 收尾：徽章留作背景，标出各自的分工，再给出结论
-  categories: 1500,
+  categories: at('加载、打包、构建，各管一段'),
   categoryStep: 24,
-  conclusion: 1590,
+  conclusion: at('还没有人把这些问题'),
 } as const;
 
 const CODE_WIDTH = 980;
@@ -119,7 +124,7 @@ export const Scene02Prehistory: React.FC<SceneProps> = () => {
           }}
         >
           {COPY.pains.map((p, i) => (
-            <Caption key={p} delay={T.pain + i * T.painStep} size="body" tone="warning">
+            <Caption key={p} delay={T.pains[i]} size="body" tone="warning">
               <span style={{ marginRight: space.sm }}>×</span>
               {p}
             </Caption>

@@ -63,17 +63,18 @@ npm run typecheck
 - **幕内年份**：`scenes.ts` 里的 `yearStops` 让时间轴在一幕中途滑到新年份（第 5 幕 v4 → 2018，第 6 幕 v5 → 2020，第 7 幕随工具登场 → 2022 → 2023 → 2024）；`atFrame` 与对应场景文件时间表中的帧一致。
 - **视觉参数**（颜色、工具配色、字体、字号、间距、布局、缓动、转场帧数）都在 `src/theme.ts`。
 
-## 旁白音频
+## 旁白音频与对齐
 
 `npm run tts`（或 `npm run tts -- 3 4` 只生成指定幕）用 Google Cloud Text-to-Speech 把 `narration.md` 合成为 `public/audio/<id>.mp3`：
 
-- 音色 `cmn-CN-Chirp3-HD-Charon`，原文直接合成；【停顿】处补 0.6 秒静音，段落之间补 0.9 秒。音色、静音长度与发音替换表都在 `scripts/tts.mjs` 顶部。
-- 认证：本机设置环境变量 `GOOGLE_TTS_API_KEY`（项目需启用 Cloud Text-to-Speech API）；在 Claude Code 云端会话中由网络代理附加密钥，需加 `NODE_USE_ENV_PROXY=1`。
-- 需要本机安装 ffmpeg。
+- 音色 `cmn-CN-Chirp3-HD-Kore`；英文缩写（npm、ES、CSS、CLI、AMD、GWT、ID、UMD、HTML）用 SSML 逐字母念，其余原文合成。音色、缩写表、静音长度与发音替换表都在 `scripts/tts.mjs` 顶部。
+- 【停顿】补 0.6 秒静音，段落之间补 0.9 秒；【停顿 4 秒】这类写明时长的，是给画面多留的时间。
+- 每句（以 。！？； 结尾）单独合成后拼接，并把每句的起止时间写入 `src/data/narrationTimings.json`。
+- 认证：本机设置环境变量 `GOOGLE_TTS_API_KEY`（项目需启用 Cloud Text-to-Speech API）；在 Claude Code 云端会话中由网络代理附加密钥，需加 `NODE_USE_ENV_PROXY=1`。需要本机安装 ffmpeg。
 
-音频存在时，该幕时长自动变为 **音频时长 + 0.4 秒**，并在幕起点播放；文件不存在时不渲染 `<Audio>`，时长取 `scenes.ts` 的 `durationSeconds`。
+**画面与旁白逐句对齐：** 各幕时间表不再写死帧数，而是用 `src/lib/cues.ts` 的 `cue(sceneId, '旁白原文片段')` 取「旁白念到这里」的帧（片段在句中时按字符位置估算），`costCue` 让「代价」节拍在念到代价那句时出现，时间轴的 `yearStops` 也用同样方式取帧。改了 `narration.md` 后重新运行 `npm run tts`，画面会自动跟着新的配音走；如果某个片段在旁白里找不到，渲染时会直接报错提示。
 
-> Studio 中新增音频后需要刷新页面才会识别。幕内动画按「相对幕起点的帧」编排：音频比默认时长**短**时，请检查对应场景文件顶部的 `T` 时间表，确保最后一个动作落在幕结束之前。
+音频存在时，该幕时长 = 音频时长 + 留白（默认 0.4 秒，第 13 幕 4 秒，见 `scenes.ts` 的 `audioTailSeconds`）。
 
 ## 项目结构
 

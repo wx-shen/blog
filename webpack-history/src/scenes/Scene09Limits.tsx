@@ -5,19 +5,23 @@ import { CostBeat } from '../components/CostBeat';
 import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { enterProgress, enterStyle, rangeProgress } from '../lib/anim';
+import { costCue, cue } from '../lib/cues';
 import { scene09, thread } from '../scenes';
-import { alpha, colors, fonts, fontSize, fontWeight, layout, space, transition, video } from '../theme';
+import { alpha, colors, fonts, fontSize, fontWeight, layout, space, video } from '../theme';
 
 const COPY = scene09.copy;
 
 // ───────────── 时间表（帧，相对内容起点） ─────────────
-// 与旁白对齐：问题 → 三个前提 → 补救都有效 → 却动不了前提 → 代价（只能另起炉灶）
+// 按旁白对齐：问题 → 三个前提（第一、第二、第三）→ 补救 → 却动不了前提 → 代价（只能另起炉灶）
+const at = (phrase: string, offset = 0) => cue(scene09.id, phrase, offset);
+const remedies = at('持久化缓存、按需编译');
 const T = {
   question: 10,
-  premises: [90, 230, 400],
-  remediesLabel: 600,
-  remedies: [630, 690, 750],
-  locked: 880,
+  premises: [at('第一，开发时要先全量打包'), at('第二，构建主要跑在'), at('第三，插件直接操作')],
+  remediesLabel: remedies,
+  /** 持久化缓存、按需编译随旁白出现；thread-loader 在第二个前提里已经念到，紧随其后补上 */
+  remedies: [at('持久化缓存、按需编译'), at('按需编译'), at('按需编译', 30)],
+  locked: at('却动不了这三个前提'),
   lockedStep: 20,
 } as const;
 
@@ -171,7 +175,7 @@ export const Scene09Limits: React.FC<SceneProps> = ({ duration }) => {
         </div>
       ))}
 
-      <CostBeat at={duration - transition.costLead} label={thread.costLabel} text={COPY.cost.text} notes={COPY.cost.notes} />
+      <CostBeat at={costCue(scene09.id, '要突破，只能另起炉灶', duration)} label={thread.costLabel} text={COPY.cost.text} notes={COPY.cost.notes} />
     </AbsoluteFill>
   );
 };

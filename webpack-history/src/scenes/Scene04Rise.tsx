@@ -7,9 +7,10 @@ import { MilestoneCard } from '../components/MilestoneCard';
 import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { enterProgress, enterStyle, exitProgress, rangeProgress } from '../lib/anim';
+import { costCue, cue } from '../lib/cues';
 import { curvePath, horizontalCurve } from '../lib/geometry';
 import { scene04, thread } from '../scenes';
-import { alpha, colors, fileColors, fonts, fontSize, fontWeight, layout, motion, space, transition, video } from '../theme';
+import { alpha, colors, fileColors, fonts, fontSize, fontWeight, layout, motion, space, video } from '../theme';
 
 const COPY = scene04.copy;
 const GRAPH = COPY.graph;
@@ -17,45 +18,50 @@ const HMR = COPY.hmr;
 const M = COPY.milestones;
 
 // ───────────── 时间表（帧，相对内容起点） ─────────────
-// 与旁白对齐：① 1.0 与 webpack-howto → ② loader → ③ plugin → ④ 热更新 → ⑤ 依赖图（引出代价）
+// 按旁白对齐：① 1.0 与 webpack-howto → ② loader → ③ plugin → ④ 热更新 → ⑤ 依赖图（引出代价）
+const at = (phrase: string, offset = 0) => cue(scene04.id, phrase, offset);
+const loaderLabel = at('loader 能把任何文件');
+const pluginLabel = at('plugin 能介入构建');
+const hmrLabel = at('热模块替换让你');
+const graph = at('单页应用迅速流行');
 const T = {
   // ① 里程碑
-  release: 20,
-  howto: 110,
-  howtoZh: 170,
-  milestonesOut: 288,
+  release: 10,
+  howto: at('同年，Pete Hunt'),
+  howtoZh: at('同年，Pete Hunt', 60),
+  milestonesOut: loaderLabel - 22,
   // ② loader 链
-  loaderLabel: 310,
-  loaderCode: 336,
-  chain: 380,
+  loaderLabel,
+  loaderCode: loaderLabel + 26,
+  chain: loaderLabel + 70,
   chainStep: 40,
-  loaderCaption: 540,
-  loaderOut: 608,
+  loaderCaption: loaderLabel + 240,
+  loaderOut: pluginLabel - 22,
   // ③ plugin 钩子
-  pluginLabel: 630,
-  stages: 656,
+  pluginLabel,
+  stages: pluginLabel + 26,
   stageStep: 18,
-  plugins: 760,
-  pluginStep: 30,
-  pluginCaption: 790,
-  pluginOut: 848,
+  plugins: pluginLabel + 80,
+  pluginStep: 25,
+  pluginCaption: pluginLabel + 110,
+  pluginOut: hmrLabel - 22,
   // ④ 热更新演示
-  hmrLabel: 870,
-  code: 896,
-  browser: 926,
-  highlight: 986,
-  editStart: 1006,
+  hmrLabel,
+  code: hmrLabel + 20,
+  browser: hmrLabel + 40,
+  highlight: hmrLabel + 80,
+  editStart: hmrLabel + 100,
   framesPerChar: 2,
-  flash: 1066,
-  hmrCaption: 1120,
-  hmrOut: 1188,
+  flash: hmrLabel + 160,
+  hmrCaption: hmrLabel + 190,
+  hmrOut: graph - 22,
   // ⑤ 依赖图：每一层开始生长的帧（第 0 层只有入口节点）
-  layers: [1210, 1240, 1310, 1400],
+  layers: [graph, graph + 20, graph + 50, graph + 80],
   /** 每层：先画连线，再逐个出现节点 */
   edgeDraw: 18,
   nodeDelay: 14,
-  nodeStep: 12,
-  graphCaption: 1410,
+  nodeStep: 8,
+  graphCaption: graph + 120,
 } as const;
 
 // ───────────── 依赖图布局 ─────────────
@@ -587,7 +593,7 @@ export const Scene04Rise: React.FC<SceneProps> = ({ duration }) => {
         </AbsoluteFill>
       ) : null}
       <CostBeat
-        at={duration - transition.costLead}
+        at={costCue(scene04.id, '但代价也随之而来', duration)}
         label={thread.costLabel}
         text={scene04.copy.cost.text}
         notes={scene04.copy.cost.notes}

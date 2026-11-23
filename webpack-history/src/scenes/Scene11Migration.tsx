@@ -4,23 +4,26 @@ import { Caption } from '../components/Caption';
 import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { enterProgress, enterStyle } from '../lib/anim';
+import { cue } from '../lib/cues';
 import { scene11 } from '../scenes';
 import { colors, fonts, fontSize, fontWeight, layout, space, toolColors, transition, video } from '../theme';
 
 const COPY = scene11.copy;
 
 // ───────────── 时间表（帧，相对内容起点） ─────────────
-// 与旁白对齐：主流框架依次换了引擎（时间轴随之走到 2025、2026）→ 跨端方案
+// 按旁白对齐：主流框架依次换了引擎（时间轴随之走到 2025、2026）→ 跨端方案
 const stopAt = (year: number) => {
   const stop = scene11.yearStops.find((s) => s.year === year);
   return stop ? stop.atFrame + transition.timelineSlide : 0;
 };
+const at = (phrase: string, offset = 0) => cue(scene11.id, phrase, offset);
 const T = {
-  frameworksLabel: 20,
-  /** 主流框架四行：Angular → create-react-app（2025）→ Next.js → Nest.js（2026） */
-  frameworks: [40, stopAt(2025), stopAt(2025) + 100, stopAt(2026)],
-  crossLabel: 600,
-  cross: [640, 700, 760, 820],
+  frameworksLabel: 10,
+  /** 主流框架四行：Angular → create-react-app（2025）→ Next.js → Nest.js（2026），随旁白逐行出现 */
+  frameworks: [at('2023 年，Angular 17'), stopAt(2025), at('同年 10 月，Next.js 16'), stopAt(2026)],
+  crossLabel: at('跨端领域'),
+  /** 跨端四行：Taro 4、uni-app、Re.Pack、Lynx，随旁白逐个出现 */
+  cross: [at('Taro 4'), at('uni-app 的 Vue 3'), at('Re.Pack'), at('Lynx')],
 } as const;
 
 // ───────────── 布局 ─────────────

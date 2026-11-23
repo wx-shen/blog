@@ -4,23 +4,26 @@ import { Caption } from '../components/Caption';
 import type { SceneProps } from '../components/SceneShell';
 import { Terminal, type TerminalLine } from '../components/Terminal';
 import { enterProgress, enterStyle, moveProgress } from '../lib/anim';
+import { cue } from '../lib/cues';
 import { scene01 } from '../scenes';
 import { colors, fonts, fontSize, fontWeight, layout, motion, space, video } from '../theme';
 
 const COPY = scene01.copy;
 
-// 本幕时间表（帧，相对内容起点）
-// 与旁白对齐：打字 →「几秒钟后……被打包成几个文件」进度条与日志 →「今天，我们来讲讲 webpack 的故事」标题
+// 本幕时间表（帧，相对内容起点），按旁白对齐（cue 取自 narrationTimings.json）：
+// 念「npm run build」时打字 →「几秒钟后」进度条与日志 →「这件事看起来理所当然」终端缩小 →「今天」标题
+const at = (phrase: string, offset = 0) => cue(scene01.id, phrase, offset);
+const progressStart = at('几秒钟后');
 const T = {
   terminalIn: 0,
-  typeStart: 24,
-  progressStart: 96,
-  progressEnd: 230,
-  logStart: 238,
+  typeStart: 12,
+  progressStart,
+  progressEnd: progressStart + 100,
+  logStart: progressStart + 108,
   logStep: 14,
-  shrink: 400,
-  title: 436,
-  subtitle: 470,
+  shrink: Math.max(at('这件事看起来理所当然', 30), progressStart + 200),
+  title: at('今天，我们来讲讲'),
+  subtitle: at('今天，我们来讲讲', 34),
 } as const;
 
 /** 终端缩小后的比例与中心位置 */

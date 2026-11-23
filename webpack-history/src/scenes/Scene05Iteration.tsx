@@ -7,44 +7,51 @@ import { CostBeat } from '../components/CostBeat';
 import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { enterExitStyle, enterProgress, enterStyle, exitProgress, rangeProgress, slideEasing } from '../lib/anim';
+import { costCue, cue } from '../lib/cues';
 import { curvePath, verticalCurve, type Point } from '../lib/geometry';
 import { scene05, thread } from '../scenes';
-import { alpha, colors, fonts, fontSize, fontWeight, layout, lineHeight, space, transition, video } from '../theme';
+import { alpha, colors, fonts, fontSize, fontWeight, layout, lineHeight, space, video } from '../theme';
 
 const COPY = scene05.copy;
 const TREE = COPY.treeShaking;
 
 // ───────────── 时间表（帧，相对内容起点） ─────────────
+// 按旁白对齐：v2 与 Tree Shaking → v3 与回应卡片 → v4（时间轴滑到 2018）：mode 折叠 → SplitChunks → sideEffects
+const at = (phrase: string, offset = 0) => cue(scene05.id, phrase, offset);
 const v4At = scene05.yearStops[0].atFrame; // 与时间轴滑到 2018 同步
+const treeIn = at('ES 模块的依赖关系在编译时');
+const modeAt = at('新增的 mode 选项');
+const splitAt = at('SplitChunksPlugin 取代了');
+const sideAt = at('package.json 里的 sideEffects');
 const T = {
   /** 每个版本翻上来的帧 */
-  versions: [20, 600, v4At],
+  versions: [20, at('半年后，webpack 3'), v4At],
   flip: 20,
   featureDelay: 30,
   featureStep: 16,
-  /** v3 阶段的「回应」卡片 */
-  v3Answer: 640,
+  /** v3 阶段的「回应」卡片：念到「正好回应了」时出现 */
+  v3Answer: at('正好回应了'),
   // v2：Tree Shaking
-  treeIn: 110,
-  usedHighlight: 200,
-  gray: 250,
-  fall: 290,
+  treeIn,
+  usedHighlight: treeIn + 60,
+  gray: at('再交给压缩工具删掉', -40),
+  fall: at('再交给压缩工具删掉'),
   fallStep: 14,
   fallDur: 36,
-  treeCaption: 380,
-  treeOut: 560,
+  treeCaption: at('这就是 Tree Shaking'),
+  treeOut: at('半年后，webpack 3', -22),
   // v4：① 长配置折叠成一行 → ② SplitChunks 取代 CommonsChunkPlugin → ③ sideEffects
-  configIn: v4At + 50,
-  fold: v4At + 130,
+  configIn: Math.max(modeAt - 30, v4At + 40),
+  fold: modeAt + 40,
   foldDur: 40,
-  modeLine: v4At + 180,
-  configOut: v4At + 280,
-  split: v4At + 300,
-  splitAfter: v4At + 350,
-  splitCaption: v4At + 400,
-  splitOut: v4At + 500,
-  side: v4At + 520,
-  sideCaption: v4At + 570,
+  modeLine: modeAt + 90,
+  configOut: splitAt - 22,
+  split: splitAt,
+  splitAfter: splitAt + 50,
+  splitCaption: splitAt + 100,
+  splitOut: sideAt - 22,
+  side: sideAt,
+  sideCaption: sideAt + 50,
 } as const;
 
 // ───────────── 布局 ─────────────
@@ -410,7 +417,7 @@ export const Scene05Iteration: React.FC<SceneProps> = ({ duration }) => (
       style={{ position: 'absolute', left: DEMO.left, top: CARD.top + 40 }}
     />
     <CostBeat
-      at={duration - transition.costLead}
+      at={costCue(scene05.id, '可是，默认配置只覆盖', duration)}
       label={thread.costLabel}
       text={scene05.copy.cost.text}
       notes={scene05.copy.cost.notes}

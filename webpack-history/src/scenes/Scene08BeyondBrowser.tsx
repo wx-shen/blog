@@ -6,24 +6,28 @@ import { Pill } from '../components/Pill';
 import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { enterExitStyle, enterProgress, enterStyle, exitProgress, rangeProgress } from '../lib/anim';
+import { cue } from '../lib/cues';
 import { scene08 } from '../scenes';
 import { alpha, categoryColors, colors, fonts, fontSize, fontWeight, layout, space, video } from '../theme';
 
 const COPY = scene08.copy;
 
 // ───────────── 时间表（帧，相对内容起点） ─────────────
-// 与旁白对齐：① target 选项 → ② 一大批跨端方案（五类依次点亮）→ ③ 通用编译器
+// 按旁白对齐：① target 选项 → ② 一大批跨端方案（每一类、每个方案在旁白念到时点亮）→ ③ 通用编译器
+const at = (phrase: string, offset = 0) => cue(scene08.id, phrase, offset);
+const cube = at('它的 target 选项');
 const T = {
-  cube: 20,
-  label: 50,
-  targets: 90,
+  cube,
+  label: cube + 30,
+  targets: cube + 60,
   targetStep: 30,
-  targetsCaption: 270,
-  targetsOut: 420,
-  /** 每一类开始点亮的帧（与旁白中各类出现的位置对应） */
-  categories: [470, 800, 980, 1100, 1220],
-  itemStep: 20,
-  statement: 1500,
+  targetsCaption: at('loader 和 plugin 又能'),
+  targetsOut: at('小程序领域', -22),
+  /** 每一类开始点亮的帧 */
+  categories: COPY.categories.map((c) => at(c.cue)),
+  /** 每个方案出现的帧：不早于所在类别之后 16 帧 */
+  items: COPY.categories.map((c) => c.items.map((it) => Math.max(at(c.cue, 16), at(it.cue)))),
+  statement: at('webpack，成了前端工程的通用编译器'),
 } as const;
 
 // ───────────── ① target 布局 ─────────────
@@ -146,7 +150,7 @@ const CategoriesPart: React.FC = () => {
               {c.name}
             </div>
             {c.items.map((it, j) => (
-              <Pill key={it} text={it} delay={at + 16 + j * T.itemStep} size="note" color={color} />
+              <Pill key={it.label} text={it.label} delay={T.items[i][j]} size="note" color={color} />
             ))}
           </div>
         );

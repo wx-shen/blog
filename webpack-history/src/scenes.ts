@@ -1,4 +1,5 @@
-import type { ToolId } from './theme';
+import { cue } from './lib/cues';
+import { transition, type ToolId } from './theme';
 
 /**
  * 全片文案与每一幕的配置都集中在这里，方便统一核对史实与修改措辞。
@@ -109,10 +110,11 @@ export const scene02 = {
    * RequireJS 0.8.0 标签 2010-02-18（仓库首个提交 2009-09-27）；Browserify npm 0.0.1 2011-02-03；
    * Grunt npm 0.1.0 2012-01-12。某个工具的 year 与 stop 的 year 相同时，徽章在滑动结束后登场。
    */
+  // 每次滑动在旁白念到该工具前 timelineSlide 帧开始，滑完正好念到工具名，徽章同时登场
   yearStops: [
-    { atFrame: 766, year: 2010 },
-    { atFrame: 1006, year: 2011 },
-    { atFrame: 1246, year: 2012 },
+    { atFrame: cue('scene02-prehistory', 'RequireJS 推行', -transition.timelineSlide), year: 2010 },
+    { atFrame: cue('scene02-prehistory', 'Browserify 换了个思路', -transition.timelineSlide), year: 2011 },
+    { atFrame: cue('scene02-prehistory', 'Grunt 则把合并', -transition.timelineSlide), year: 2012 },
   ],
   narration: "在没有打包工具的年代，一个页面就是一串 script 标签。脚本按顺序加载，依赖关系全靠人工维护；所有变量都挂在全局，一不小心就互相覆盖；文件越多，请求也越多。\n\n2009 年，Node.js 问世，服务端 JavaScript 用上了 CommonJS 规范：一个文件就是一个模块，用 require 引入。可是，浏览器并不认识 require。\n\n社区开始各自寻找出路。RequireJS 推行 AMD 规范，让浏览器异步加载模块；Browserify 换了个思路，把 Node 风格的模块打包成一个文件，直接在浏览器里运行；Grunt 则把合并、压缩这些重复劳动，交给了任务脚本。\n\n加载、打包、构建，各管一段。还没有人把这些问题放在一起解决。",
   copy: {
@@ -399,8 +401,8 @@ export const scene05 = {
   chrome: 'always',
   audio: 'audio/scene05-iteration.mp3',
   narration: "2017 年 1 月，webpack 2 发布，原生支持 ES 模块的 import 和 export。ES 模块的依赖关系在编译时就能确定，webpack 可以标记出没被用到的导出，再交给压缩工具删掉。这就是 Tree Shaking。\n\n半年后，webpack 3 带来了实验性的 Scope Hoisting：把多个 ES 模块合并进同一个作用域，正好回应了“每个模块都要包一层函数”的代价。\n\n2018 年 2 月，webpack 4 发布。新增的 mode 选项按环境内置了默认配置，没有配置文件也能直接构建；SplitChunksPlugin 取代了难以配置的 CommonsChunkPlugin；package.json 里的 sideEffects 字段，让 Tree Shaking 能删得更多。\n\n可是，默认配置只覆盖了简单项目。真实项目里，配置照样越写越长。",
-  // v4 翻牌时（Scene05Iteration 的 T.versions[2]）时间轴滑到 2018
-  yearStops: [{ atFrame: 900, year: 2018 }],
+  // 念到「2018 年 2 月，webpack 4 发布」时 v4 翻牌，时间轴同时滑到 2018（见 Scene05Iteration 的 T.versions[2]）
+  yearStops: [{ atFrame: cue('scene05-iteration', '2018 年 2 月，webpack 4'), year: 2018 }],
   copy: {
     /** 幕末「代价」：引出第 6 幕「配置之痛」 */
     cost: {
@@ -695,12 +697,30 @@ export const scene08 = {
      * Hippy demo 构建基于 webpack；NativeScript CLI 默认 bundler 为 webpack；Electron Forge 有 webpack 插件；
      * Next.js webpack 模式下构建服务端产物；qiankun 要求子应用打包成 UMD。
      */
+    // cue：旁白念到该类 / 该方案时的那段原文（用于对齐画面，见 src/lib/cues.ts）
     categories: [
-      { name: '小程序', items: ['Taro', 'uni-app（Vue 2）', 'kbone', '快应用'] },
-      { name: '原生渲染', items: ['Weex', 'Hippy', 'NativeScript'] },
-      { name: '桌面', items: ['Electron Forge'] },
-      { name: '服务端', items: ['Next.js 服务端渲染'] },
-      { name: '微前端', items: ['qiankun（UMD 子应用）'] },
+      {
+        name: '小程序',
+        cue: '小程序领域',
+        items: [
+          { label: 'Taro', cue: 'Taro 从 2.0' },
+          { label: 'uni-app（Vue 2）', cue: 'uni-app 的 Vue 2' },
+          { label: 'kbone', cue: 'kbone' },
+          { label: '快应用', cue: '快应用的工具链' },
+        ],
+      },
+      {
+        name: '原生渲染',
+        cue: '原生渲染方向',
+        items: [
+          { label: 'Weex', cue: 'Weex' },
+          { label: 'Hippy', cue: 'Hippy' },
+          { label: 'NativeScript', cue: 'NativeScript' },
+        ],
+      },
+      { name: '桌面', cue: '桌面端有', items: [{ label: 'Electron Forge', cue: 'Electron Forge' }] },
+      { name: '服务端', cue: '服务端，Next.js', items: [{ label: 'Next.js 服务端渲染', cue: 'Next.js 用它' }] },
+      { name: '微前端', cue: '微前端框架', items: [{ label: 'qiankun（UMD 子应用）', cue: 'qiankun' }] },
     ],
     /** 解读 */
     statement: 'webpack，成了前端工程的通用编译器',
@@ -765,9 +785,10 @@ export const scene10 = {
    * 某个工具的 year 与某个 stop 的 year 相同时，该工具会在这次滑动结束后才登场（见 Scene10Challengers）。
    */
   yearStops: [
-    { atFrame: 560, year: 2022 },
-    { atFrame: 680, year: 2023 },
-    { atFrame: 1280, year: 2024 },
+    { atFrame: cue('scene10-challengers', '2022 年，Vercel', -transition.timelineSlide), year: 2022 },
+    { atFrame: cue('scene10-challengers', '2023 年，字节跳动', -transition.timelineSlide), year: 2023 },
+    // 柱状图出现时（念到「保留接口，换掉实现」）走到 2024
+    { atFrame: cue('scene10-challengers', '保留接口，换掉实现'), year: 2024 },
   ],
   copy: {
     /**
@@ -827,10 +848,10 @@ export const scene11 = {
   durationSeconds: 40,
   chrome: 'always',
   audio: 'audio/scene11-migration.mp3',
-  // 时间轴随迁移墙推进：create-react-app 一行前滑到 2025，Nest.js 一行前滑到 2026（见 Scene11Migration）
+  // 时间轴随旁白推进：念到「2025 年 2 月」前滑到 2025，念到「2026 年」前滑到 2026（见 Scene11Migration）
   yearStops: [
-    { atFrame: 150, year: 2025 },
-    { atFrame: 390, year: 2026 },
+    { atFrame: cue('scene11-migration', '2025 年 2 月', -transition.timelineSlide), year: 2025 },
+    { atFrame: cue('scene11-migration', '2026 年，Nest.js', -transition.timelineSlide), year: 2026 },
   ],
   narration: "接下来几年，主流框架陆续换了引擎。2023 年，Angular 17 默认改用基于 esbuild 的构建；2025 年 2 月，React 团队宣布不再推荐用 create-react-app 创建新项目；同年 10 月，Next.js 16 把默认打包器换成了 Turbopack；2026 年，Nest.js 12 的 monorepo 默认改用 Rspack。\n\n跨端领域，Taro 4 和 uni-app 的 Vue 3 版本支持了 Vite，Re.Pack 和字节跳动的 Lynx，则选择了 Rspack。",
   copy: {
@@ -912,8 +933,8 @@ export const scene13 = {
   durationSeconds: 15,
   chrome: 'always',
   audio: 'audio/scene13-outro.mp3',
-  // 片尾标题出现前（Scene13Outro 的 T.end），时间轴与左上角年份退场
-  chromeExitAt: 250,
+  // 念到「这就是 webpack 的故事」、片尾标题出现时，时间轴与左上角年份退场
+  chromeExitAt: cue('scene13-outro', '这就是 webpack 的故事', -20),
   // 旁白念完后，片尾标题还要停留几秒
   audioTailSeconds: 4,
   narration: "打包工具会更替，问题与思想会留下。每一个方案，都带着它的代价。这就是 webpack 的故事。",

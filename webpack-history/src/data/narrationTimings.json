@@ -1,0 +1,567 @@
+{
+  "scene01-intro": {
+    "duration": 23.928,
+    "sentences": [
+      {
+        "text": "每天，我们都会敲下这一行：npm run build。",
+        "start": 0,
+        "end": 6.4
+      },
+      {
+        "text": "几秒钟后，成百上千个模块，被打包成几个文件。",
+        "start": 7,
+        "end": 12.92
+      },
+      {
+        "text": "这件事看起来理所当然，但它的背后，是前端工程化十几年的演进。",
+        "start": 12.92,
+        "end": 19.56
+      },
+      {
+        "text": "今天，我们来讲讲 webpack 的故事。",
+        "start": 20.16,
+        "end": 23.88
+      }
+    ]
+  },
+  "scene02-prehistory": {
+    "duration": 69.408,
+    "sentences": [
+      {
+        "text": "在没有打包工具的年代，一个页面就是一串 script 标签。",
+        "start": 0,
+        "end": 5.36
+      },
+      {
+        "text": "脚本按顺序加载，依赖关系全靠人工维护；",
+        "start": 5.36,
+        "end": 10.36
+      },
+      {
+        "text": "所有变量都挂在全局，一不小心就互相覆盖；",
+        "start": 10.36,
+        "end": 15.28
+      },
+      {
+        "text": "文件越多，请求也越多。",
+        "start": 15.28,
+        "end": 18.12
+      },
+      {
+        "text": "2009 年，Node.js 问世，服务端 JavaScript 用上了 CommonJS 规范：一个文件就是一个模块，用 require 引入。",
+        "start": 19.62,
+        "end": 31.5
+      },
+      {
+        "text": "可是，浏览器并不认识 require。",
+        "start": 31.5,
+        "end": 35.22
+      },
+      {
+        "text": "社区开始各自寻找出路。",
+        "start": 36.72,
+        "end": 39.32
+      },
+      {
+        "text": "RequireJS 推行 AMD 规范，让浏览器异步加载模块；",
+        "start": 39.32,
+        "end": 45.24
+      },
+      {
+        "text": "Browserify 换了个思路，把 Node 风格的模块打包成一个文件，直接在浏览器里运行；",
+        "start": 45.24,
+        "end": 53.64
+      },
+      {
+        "text": "Grunt 则把合并、压缩这些重复劳动，交给了任务脚本。",
+        "start": 53.64,
+        "end": 60.48
+      },
+      {
+        "text": "加载、打包、构建，各管一段。",
+        "start": 61.98,
+        "end": 66.14
+      },
+      {
+        "text": "还没有人把这些问题放在一起解决。",
+        "start": 66.14,
+        "end": 69.34
+      }
+    ]
+  },
+  "scene03-birth": {
+    "duration": 58.656,
+    "sentences": [
+      {
+        "text": "2012 年 2 月，Tobias Koppers 在另一个打包工具的仓库里提了一个想法：能不能像 Google 的 GWT 那样，做代码分割，按需加载。",
+        "start": 0,
+        "end": 12.28
+      },
+      {
+        "text": "没过多久，他决定自己动手。",
+        "start": 12.88,
+        "end": 16.08
+      },
+      {
+        "text": "2012 年 3 月，webpack 的第一个提交诞生了。",
+        "start": 16.08,
+        "end": 20.84
+      },
+      {
+        "text": "webpack 的核心想法很简单：一切皆模块。",
+        "start": 22.34,
+        "end": 26.9
+      },
+      {
+        "text": "JavaScript 是模块，CSS、图片、字体也是模块。",
+        "start": 26.9,
+        "end": 33.54
+      },
+      {
+        "text": "它从入口文件出发，顺着依赖关系走遍整个项目，把所有模块打包输出；",
+        "start": 33.54,
+        "end": 41.26
+      },
+      {
+        "text": "遇到需要按需加载的部分，再拆成独立的代码块。",
+        "start": 41.26,
+        "end": 46.7
+      },
+      {
+        "text": "不过，这里也埋下了第一个代价：每个模块都要包进一个函数，产物里多出一层模块运行时。",
+        "start": 48.2,
+        "end": 58.6
+      }
+    ]
+  },
+  "scene04-rise": {
+    "duration": 59.88,
+    "sentences": [
+      {
+        "text": "2014 年 2 月，webpack 1.0 正式发布。",
+        "start": 0,
+        "end": 4.28
+      },
+      {
+        "text": "同年，Pete Hunt 发布了 webpack-howto，介绍 Instagram 是怎样使用 webpack 的。",
+        "start": 4.28,
+        "end": 11.52
+      },
+      {
+        "text": "让 webpack 脱颖而出的，是三样东西。",
+        "start": 13.02,
+        "end": 16.58
+      },
+      {
+        "text": "loader 能把任何文件转换成模块，比如串起 style-loader 和 css-loader，样式就能直接 import 进 JavaScript。",
+        "start": 16.58,
+        "end": 27.98
+      },
+      {
+        "text": "plugin 能介入构建的每一个环节，扩展出各种能力。",
+        "start": 27.98,
+        "end": 33.58
+      },
+      {
+        "text": "热模块替换让你改完代码，页面不用刷新，只更新改动的那一块。",
+        "start": 33.58,
+        "end": 40.7
+      },
+      {
+        "text": "单页应用迅速流行，webpack 成了它们的标配。",
+        "start": 42.2,
+        "end": 46.72
+      },
+      {
+        "text": "但代价也随之而来：开发服务器必须先建好完整的依赖图，才能启动。",
+        "start": 48.22,
+        "end": 56.42
+      },
+      {
+        "text": "项目越大，等得越久。",
+        "start": 56.42,
+        "end": 59.82
+      }
+    ]
+  },
+  "scene05-iteration": {
+    "duration": 65.64,
+    "sentences": [
+      {
+        "text": "2017 年 1 月，webpack 2 发布，原生支持 ES 模块的 import 和 export。",
+        "start": 0,
+        "end": 7.4
+      },
+      {
+        "text": "ES 模块的依赖关系在编译时就能确定，webpack 可以标记出没被用到的导出，再交给压缩工具删掉。",
+        "start": 7.4,
+        "end": 17.24
+      },
+      {
+        "text": "这就是 Tree Shaking。",
+        "start": 17.24,
+        "end": 19.16
+      },
+      {
+        "text": "半年后，webpack 3 带来了实验性的 Scope Hoisting：把多个 ES 模块合并进同一个作用域，正好回应了“每个模块都要包一层函数”的代价。",
+        "start": 20.66,
+        "end": 32.1
+      },
+      {
+        "text": "2018 年 2 月，webpack 4 发布。",
+        "start": 33.6,
+        "end": 37.12
+      },
+      {
+        "text": "新增的 mode 选项按环境内置了默认配置，没有配置文件也能直接构建；",
+        "start": 37.12,
+        "end": 44.2
+      },
+      {
+        "text": "SplitChunksPlugin 取代了难以配置的 CommonsChunkPlugin；",
+        "start": 44.2,
+        "end": 49.44
+      },
+      {
+        "text": "package.json 里的 sideEffects 字段，让 Tree Shaking 能删得更多。",
+        "start": 49.44,
+        "end": 55.84
+      },
+      {
+        "text": "可是，默认配置只覆盖了简单项目。",
+        "start": 57.34,
+        "end": 61.34
+      },
+      {
+        "text": "真实项目里，配置照样越写越长。",
+        "start": 61.34,
+        "end": 65.58
+      }
+    ]
+  },
+  "scene06-config-pain": {
+    "duration": 51.624,
+    "sentences": [
+      {
+        "text": "那几年，一份真实项目的 webpack 配置，往往要处理多个入口、各种 loader、压缩、分包、环境变量，开发和生产还要分开维护。",
+        "start": 0,
+        "end": 13.24
+      },
+      {
+        "text": "配置复杂到仿佛需要专人维护，“webpack 配置工程师”，成了前端圈半是吐槽、半是自嘲的说法。",
+        "start": 13.24,
+        "end": 22.96
+      },
+      {
+        "text": "解决的办法，是把配置藏起来。",
+        "start": 24.46,
+        "end": 28.66
+      },
+      {
+        "text": "2016 年的 create-react-app，还有 Vue CLI、Next.js，都在 webpack 之上做了一层封装，让大多数开发者不必再直接面对配置。",
+        "start": 28.66,
+        "end": 45.74
+      },
+      {
+        "text": "问题并没有消失，只是交给了框架的作者。",
+        "start": 47.24,
+        "end": 51.56
+      }
+    ]
+  },
+  "scene07-webpack5": {
+    "duration": 60.72,
+    "sentences": [
+      {
+        "text": "2020 年 10 月 10 日，webpack 5 发布。",
+        "start": 0,
+        "end": 3.6
+      },
+      {
+        "text": "持久化缓存可以把构建结果写到磁盘，第二次构建时，没有改动的模块不必重新编译。",
+        "start": 5.1,
+        "end": 14.42
+      },
+      {
+        "text": "模块联邦让多个独立部署的应用在运行时共享代码，成了微前端的重要方案。",
+        "start": 14.42,
+        "end": 22.7
+      },
+      {
+        "text": "资源模块取代了 file-loader、url-loader 和 raw-loader。",
+        "start": 22.7,
+        "end": 29.54
+      },
+      {
+        "text": "生产模式默认使用稳定的模块 ID，长期缓存更加可靠。",
+        "start": 29.54,
+        "end": 36.02
+      },
+      {
+        "text": "它也做了一次大胆的取舍：不再自动为 Node.js 的核心模块注入浏览器 polyfill。",
+        "start": 37.52,
+        "end": 46.52
+      },
+      {
+        "text": "产物更干净了，但这是一次破坏性的升级，不少项目需要手动补上。",
+        "start": 46.52,
+        "end": 53
+      },
+      {
+        "text": "然而，缓存只能加速重复的构建，改变不了底层的设计。",
+        "start": 54.5,
+        "end": 60.66
+      }
+    ]
+  },
+  "scene08-beyond": {
+    "duration": 74.16,
+    "sentences": [
+      {
+        "text": "webpack 的影响，远不止浏览器。",
+        "start": 0,
+        "end": 3.84
+      },
+      {
+        "text": "它的 target 选项能为 Node.js、Electron、Web Worker 等不同环境生成产物；",
+        "start": 5.34,
+        "end": 13.7
+      },
+      {
+        "text": "loader 和 plugin 又能把代码改造成几乎任何格式。",
+        "start": 13.7,
+        "end": 18.62
+      },
+      {
+        "text": "于是，一大批跨端方案，都把 webpack 当成了编译底座。",
+        "start": 18.62,
+        "end": 24.42
+      },
+      {
+        "text": "小程序领域，Taro 从 2.0 开始基于 webpack 编译，uni-app 的 Vue 2 版本建立在 Vue CLI 之上，微信官方的 kbone 用 webpack 插件把网页代码转成小程序，快应用的工具链至今仍在用 webpack。",
+        "start": 25.92,
+        "end": 45.16
+      },
+      {
+        "text": "原生渲染方向，Weex、Hippy 和 NativeScript 都用 webpack 打包。",
+        "start": 45.16,
+        "end": 51.6
+      },
+      {
+        "text": "桌面端有 Electron Forge 的 webpack 插件；",
+        "start": 51.6,
+        "end": 55.48
+      },
+      {
+        "text": "服务端，Next.js 用它打包服务端渲染的代码；",
+        "start": 55.48,
+        "end": 61.76
+      },
+      {
+        "text": "微前端框架 qiankun，则要求子应用用 webpack 打包成 UMD 格式。",
+        "start": 61.76,
+        "end": 68.72
+      },
+      {
+        "text": "webpack，成了前端工程的通用编译器。",
+        "start": 70.22,
+        "end": 74.1
+      }
+    ]
+  },
+  "scene09-limits": {
+    "duration": 45.888,
+    "sentences": [
+      {
+        "text": "那么，webpack 为什么没能一直快下去？",
+        "start": 0,
+        "end": 3.84
+      },
+      {
+        "text": "问题出在底层设计的三个前提。",
+        "start": 3.84,
+        "end": 7.08
+      },
+      {
+        "text": "第一，开发时要先全量打包，依赖图建完才能启动。",
+        "start": 8.58,
+        "end": 15.26
+      },
+      {
+        "text": "第二，构建主要跑在 JavaScript 的单线程上，thread-loader 也只能把 loader 分到多个进程里。",
+        "start": 15.26,
+        "end": 23.7
+      },
+      {
+        "text": "第三，插件直接操作 compiler、compilation 这些内部对象，生态越繁荣，内核越难大改。",
+        "start": 23.7,
+        "end": 33.78
+      },
+      {
+        "text": "持久化缓存、按需编译，这些补救都有效，却动不了这三个前提。",
+        "start": 35.28,
+        "end": 42.6
+      },
+      {
+        "text": "要突破，只能另起炉灶。",
+        "start": 42.6,
+        "end": 45.84
+      }
+    ]
+  },
+  "scene10-challengers": {
+    "duration": 76.224,
+    "sentences": [
+      {
+        "text": "其实，另起炉灶的人早就有了。",
+        "start": 0,
+        "end": 3.84
+      },
+      {
+        "text": "2015 年的 Rollup 以打包库见长，从一开始就把模块合并进同一个作用域；",
+        "start": 3.84,
+        "end": 11.64
+      },
+      {
+        "text": "2017 年的 Parcel，主打零配置。",
+        "start": 11.64,
+        "end": 15.24
+      },
+      {
+        "text": "2020 年，新一代工具集中出现。",
+        "start": 16.74,
+        "end": 20.86
+      },
+      {
+        "text": "用 Go 编写的 esbuild 能多核并行，换掉了“用 JavaScript 实现”这一层；",
+        "start": 20.86,
+        "end": 27.78
+      },
+      {
+        "text": "Vite 在开发时直接利用浏览器原生的 ES 模块按需编译，换掉了“先打包再启动”这一层。",
+        "start": 27.78,
+        "end": 37.38
+      },
+      {
+        "text": "2022 年，Vercel 公布了用 Rust 编写、基于增量计算的 Turbopack。",
+        "start": 37.38,
+        "end": 44.38
+      },
+      {
+        "text": "2023 年，字节跳动开源 Rspack：用 Rust 重写内核，同时兼容绝大多数 webpack 的配置和插件，保留接口，换掉实现。",
+        "start": 44.38,
+        "end": 56.74
+      },
+      {
+        "text": "不过，新工具也有自己的取舍。",
+        "start": 61.64,
+        "end": 65.16
+      },
+      {
+        "text": "Vite 早期开发用 esbuild、生产用 Rollup，直到 2026 年的 Vite 8，才统一为 Rolldown。",
+        "start": 65.16,
+        "end": 74.32
+      },
+      {
+        "text": "没有银弹。",
+        "start": 74.32,
+        "end": 76.16
+      }
+    ]
+  },
+  "scene11-migration": {
+    "duration": 46.008,
+    "sentences": [
+      {
+        "text": "接下来几年，主流框架陆续换了引擎。",
+        "start": 0,
+        "end": 4.96
+      },
+      {
+        "text": "2023 年，Angular 17 默认改用基于 esbuild 的构建；",
+        "start": 4.96,
+        "end": 10.2
+      },
+      {
+        "text": "2025 年 2 月，React 团队宣布不再推荐用 create-react-app 创建新项目；",
+        "start": 10.2,
+        "end": 18.32
+      },
+      {
+        "text": "同年 10 月，Next.js 16 把默认打包器换成了 Turbopack；",
+        "start": 18.32,
+        "end": 25.72
+      },
+      {
+        "text": "2026 年，Nest.js 12 的 monorepo 默认改用 Rspack。",
+        "start": 25.72,
+        "end": 33.16
+      },
+      {
+        "text": "跨端领域，Taro 4 和 uni-app 的 Vue 3 版本支持了 Vite，Re.Pack 和字节跳动的 Lynx，则选择了 Rspack。",
+        "start": 34.66,
+        "end": 45.94
+      }
+    ]
+  },
+  "scene12-today": {
+    "duration": 35.208,
+    "sentences": [
+      {
+        "text": "但 webpack 并没有停下。",
+        "start": 0,
+        "end": 2.68
+      },
+      {
+        "text": "2026 年，它依然保持着每月一个小版本的节奏。",
+        "start": 2.68,
+        "end": 8.52
+      },
+      {
+        "text": "原生 CSS 和 HTML 支持已经内置，TypeScript 支持也已加入；",
+        "start": 8.52,
+        "end": 16.2
+      },
+      {
+        "text": "新增了 Bun 和 Deno 运行目标；",
+        "start": 16.2,
+        "end": 19.32
+      },
+      {
+        "text": "核心的多线程能力，也在设计之中。",
+        "start": 19.32,
+        "end": 24.08
+      },
+      {
+        "text": "模块联邦 2.0 已经独立维护，可以跨多种打包工具使用。",
+        "start": 24.08,
+        "end": 29.56
+      },
+      {
+        "text": "官方路线图上，下一站是 webpack 6。",
+        "start": 31.06,
+        "end": 35.14
+      }
+    ]
+  },
+  "scene13-outro": {
+    "duration": 14.328,
+    "sentences": [
+      {
+        "text": "打包工具会更替，问题与思想会留下。",
+        "start": 0,
+        "end": 4.12
+      },
+      {
+        "text": "每一个方案，都带着它的代价。",
+        "start": 4.72,
+        "end": 8.84
+      },
+      {
+        "text": "这就是 webpack 的故事。",
+        "start": 11.84,
+        "end": 14.28
+      }
+    ]
+  }
+}

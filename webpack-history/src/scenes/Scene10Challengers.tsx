@@ -7,33 +7,35 @@ import { SceneTitle } from '../components/SceneTitle';
 import { ToolBadge } from '../components/ToolBadge';
 import { enterExitStyle, exitProgress } from '../lib/anim';
 import { benchmark } from '../data/benchmark';
+import { costCue, cue } from '../lib/cues';
 import { scene10, thread } from '../scenes';
 import { colors, fonts, fontSize, layout, space, toolColors, transition, video } from '../theme';
 
 const COPY = scene10.copy;
 
 // ───────────── 时间表（帧，相对内容起点） ─────────────
-// 与旁白对齐：① 前史 Rollup / Parcel → ② 2020 年 esbuild、Vite → Turbopack（2022）→ Rspack（2023）
-// → ③ 柱状图（时间轴走到 2024）→ 代价：没有银弹
+// 按旁白对齐：① 前史 Rollup / Parcel → ② 2020 年 esbuild、Vite → Turbopack（2022）→ Rspack（2023）
+// → ③ 念到「保留接口，换掉实现」时展示柱状图，旁白随后停顿 4 秒（时间轴走到 2024）→ 代价：没有银弹
+const at = (phrase: string, offset = 0) => cue(scene10.id, phrase, offset);
+// 念到「保留接口，换掉实现」时出柱状图，随后旁白停顿 4 秒，柱状图约有 6 秒可看
+const chart = cue(scene10.id, '保留接口，换掉实现');
 const T = {
-  prelude: 20,
-  preludeStep: 60,
-  preludeOut: 330,
-  badges: 380,
-  badgeStep: 60,
-  badgesOut: 840,
-  chart: 870,
-  barStagger: 30,
-  source: 900,
+  prelude: [at('2015 年的 Rollup'), at('2017 年的 Parcel')],
+  preludeOut: at('2020 年，新一代工具', -22),
+  badgesOut: chart - 16,
+  chart,
+  barStagger: 12,
+  source: chart + 40,
 } as const;
 
 /**
- * 工具登场的帧：默认按 badgeStep 依次出现；若该工具的年份对应 scenes.ts 里的一个 yearStop，
+ * 工具登场的帧：旁白念到工具名时登场；若该工具的年份对应 scenes.ts 里的一个 yearStop，
  * 则等时间轴滑到该年份之后再登场（先滑动、再入场，同屏运动元素不超过 3 个）。
  */
+const BADGE_CUES = ['用 Go 编写的 esbuild', 'Vite 在开发时', '2022 年，Vercel', '2023 年，字节跳动'] as const;
 const badgeDelay = (i: number): number => {
   const stop = scene10.yearStops.find((s) => s.year === COPY.tools[i].year);
-  return stop ? stop.atFrame + transition.timelineSlide : T.badges + i * T.badgeStep;
+  return stop ? stop.atFrame + transition.timelineSlide : at(BADGE_CUES[i]);
 };
 
 const CONTENT_WIDTH = video.width - space.safe * 2;
@@ -77,10 +79,10 @@ export const Scene10Challengers: React.FC<SceneProps> = ({ duration }) => {
       <SceneTitle title={scene10.title} years={scene10.yearsLabel} />
 
       {/* ① 前史：另起炉灶的人早就有了 */}
-      {preludeOut > 0 ? <BadgeGrid items={COPY.prelude} delayOf={(i) => T.prelude + i * T.preludeStep} out={preludeOut} /> : null}
+      {preludeOut > 0 ? <BadgeGrid items={COPY.prelude} delayOf={(i) => T.prelude[i]} out={preludeOut} /> : null}
 
       {/* ② 新一代工具：各自换掉了 webpack 的哪一层 */}
-      {frame >= T.badges && badgesOut > 0 ? <BadgeGrid items={COPY.tools} delayOf={badgeDelay} out={badgesOut} /> : null}
+      {frame >= badgeDelay(0) && badgesOut > 0 ? <BadgeGrid items={COPY.tools} delayOf={badgeDelay} out={badgesOut} /> : null}
 
       {/* ③ 构建耗时柱状图：数据来自 src/data/benchmark.ts */}
       {frame >= T.chart ? (
@@ -118,7 +120,7 @@ export const Scene10Challengers: React.FC<SceneProps> = ({ duration }) => {
         </>
       ) : null}
 
-      <CostBeat at={duration - transition.costLead} label={thread.costLabel} text={COPY.cost.text} notes={COPY.cost.notes} />
+      <CostBeat at={costCue(scene10.id, '不过，新工具也有自己的取舍', duration)} label={thread.costLabel} text={COPY.cost.text} notes={COPY.cost.notes} />
     </AbsoluteFill>
   );
 };

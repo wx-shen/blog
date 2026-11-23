@@ -3,6 +3,7 @@ import { AbsoluteFill, useCurrentFrame, useVideoConfig } from 'remotion';
 import { Caption } from '../components/Caption';
 import type { SceneProps } from '../components/SceneShell';
 import { enterProgress, enterStyle, exitProgress } from '../lib/anim';
+import { cue } from '../lib/cues';
 import { scene03, scene04, scene05, scene06, scene07, scene09, scene10, scene13 } from '../scenes';
 import { colors, fonts, fontSize, fontWeight, layout, space, video } from '../theme';
 
@@ -15,17 +16,21 @@ const RECAP = [scene03, scene04, scene05, scene06, scene07, scene09, scene10].ma
 }));
 
 // ───────────── 时间表（帧，相对内容起点） ─────────────
-// 回顾代价 →「打包工具会更替，问题与思想会留下」→ 时间轴退场（scenes.ts 的 chromeExitAt）→ 片尾标题
+// 按旁白对齐：「打包工具会更替，问题与思想会留下」→「每一个方案，都带着它的代价」回顾各幕代价（旁白停顿 3 秒）
+// →「这就是 webpack 的故事」时间轴退场（scenes.ts 的 chromeExitAt）、片尾标题
+const at = (phrase: string, offset = 0) => cue(scene13.id, phrase, offset);
+const recapLabel = at('每一个方案，都带着它的代价');
+const ending = at('这就是 webpack 的故事');
 const T = {
-  recapLabel: 0,
-  recap: 12,
+  line1: 0,
+  line2: at('问题与思想会留下'),
+  linesOut: recapLabel - 14,
+  recapLabel,
+  recap: recapLabel + 12,
   recapStep: 12,
-  recapOut: 150,
-  line1: 170,
-  line2: 200,
-  linesOut: scene13.chromeExitAt,
-  endTitle: scene13.chromeExitAt + 36,
-  endSubtitle: scene13.chromeExitAt + 66,
+  recapOut: ending - 14,
+  endTitle: ending,
+  endSubtitle: ending + 30,
 } as const;
 
 export const Scene13Outro: React.FC<SceneProps> = () => {
@@ -38,7 +43,7 @@ export const Scene13Outro: React.FC<SceneProps> = () => {
   return (
     <AbsoluteFill>
       {/* ① 一路走来的代价 */}
-      {recapOut > 0 ? (
+      {frame >= T.recapLabel && recapOut > 0 ? (
         <AbsoluteFill style={{ opacity: recapOut }}>
           <Caption delay={T.recapLabel} size="note" tone="dim" style={{ position: 'absolute', left: space.safe, top: layout.contentTop - 20 }}>
             {COPY.recapLabel}

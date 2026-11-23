@@ -7,23 +7,26 @@ import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { enterProgress, enterStyle, rangeProgress, slideEasing } from '../lib/anim';
 import { bezierPoint, type Point } from '../lib/geometry';
+import { cue } from '../lib/cues';
 import { scene12 } from '../scenes';
 import { alpha, colors, fileColors, fonts, fontSize, layout, motion, space, video } from '../theme';
 
 const COPY = scene12.copy;
 
 // ───────────── 时间表（帧，相对内容起点） ─────────────
-// 与旁白对齐：每月发版 → CSS / HTML / TypeScript 被吸入立方体 → Bun、Deno、多线程、模块联邦 2.0 → 通往 v6
+// 按旁白对齐：每月发版 → CSS / HTML / TypeScript 被吸入立方体 → Bun、Deno、多线程、模块联邦 2.0 → 通往 v6
+const at = (phrase: string, offset = 0) => cue(scene12.id, phrase, offset);
+const cubeIn = at('原生 CSS 和 HTML 支持');
 const T = {
-  facts: [30, 420, 500, 580],
-  cubeIn: 100,
-  iconsIn: 120,
+  facts: [at('依然保持着每月'), at('新增了 Bun 和 Deno'), at('核心的多线程能力'), at('模块联邦 2.0')],
+  cubeIn,
+  iconsIn: cubeIn + 20,
   iconStep: 16,
-  fly: 200,
+  fly: cubeIn + 80,
   flyStep: 30,
   flyDur: 44,
-  statement: 700,
-  statementNote: 740,
+  statement: at('官方路线图上'),
+  statementNote: at('官方路线图上', 40),
 } as const;
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
