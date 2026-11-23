@@ -16,6 +16,10 @@ type Props = {
   /** 需要变暗划掉的行号（如 Tree Shaking 剔除的代码） */
   dimLines?: readonly number[];
   dimProgress?: number;
+  /** 代码区固定高度（px），超出部分裁掉；省略则随行数撑开 */
+  bodyHeight?: number;
+  /** 代码区向上滚动的距离（px），需配合 bodyHeight */
+  scrollTop?: number;
   width?: number;
   fontSize?: number;
   style?: React.CSSProperties;
@@ -58,6 +62,8 @@ export const CodeBlock: React.FC<Props> = ({
   highlightProgress = 0,
   dimLines = [],
   dimProgress = 0,
+  bodyHeight,
+  scrollTop = 0,
   width = 900,
   fontSize = fs.code,
   style,
@@ -92,7 +98,17 @@ export const CodeBlock: React.FC<Props> = ({
           {filename}
         </div>
       ) : null}
-      <div style={{ padding: `${space.md}px ${space.md}px`, fontFamily: fonts.mono, fontSize }}>
+      <div
+        style={{
+          padding: `${space.md}px ${space.md}px`,
+          fontFamily: fonts.mono,
+          fontSize,
+          height: bodyHeight,
+          boxSizing: 'border-box',
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{ transform: `translateY(${-scrollTop}px)` }}>
         {lines.map((line, i) => {
           const start = lineStartFrames?.[i];
           if (start !== undefined && frame < start) {
@@ -148,6 +164,7 @@ export const CodeBlock: React.FC<Props> = ({
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );

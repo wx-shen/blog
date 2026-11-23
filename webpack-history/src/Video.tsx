@@ -4,12 +4,9 @@ import { Background } from './components/Background';
 import { Chrome } from './components/Chrome';
 import { SceneShell } from './components/SceneShell';
 import type { SceneTiming } from './lib/metadata';
-import { buildSegments } from './lib/timing';
+import { buildSegments, contentDelayFor, finalYear } from './lib/timing';
 import { sceneComponents } from './sceneComponents';
 import { scenes, type SceneId } from './scenes';
-import { transition } from './theme';
-
-const contentDelayFor = (index: number) => (index === 0 ? 0 : transition.contentDelay);
 
 export type WebpackHistoryProps = {
   timings: SceneTiming[];
@@ -54,8 +51,8 @@ export type SingleSceneProps = {
 export const SingleScene: React.FC<SingleSceneProps> = ({ sceneId, timing }) => {
   const index = scenes.findIndex((s) => s.id === sceneId);
   const scene = scenes[index];
-  const prevYear = index > 0 ? scenes[index - 1].focusYear : scene.focusYear;
-  const segments = buildSegments([scene], [timing.durationInFrames], prevYear);
+  const prevYear = index > 0 ? finalYear(scenes[index - 1]) : scene.focusYear;
+  const segments = buildSegments([scene], [timing.durationInFrames], index, prevYear);
   return (
     <AbsoluteFill>
       <Background />

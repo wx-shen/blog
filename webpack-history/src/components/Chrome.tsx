@@ -31,7 +31,7 @@ export const Chrome: React.FC<{ segments: Segment[] }> = ({ segments }) => {
           opacity: visibility,
         }}
       />
-      <YearCounter from={year.from} to={year.to} progress={year.progress} visibility={visibility} />
+      <YearCounter year={year.value} visibility={visibility} />
       <Timeline year={year.value} visibility={visibility} />
     </>
   );

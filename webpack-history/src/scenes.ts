@@ -24,6 +24,11 @@ export type SceneConfig = {
   audio: string;
   /** 'always'：始终显示 Timeline 与 YearCounter；'rise-at-end'：本幕结尾才升起（开场） */
   chrome: 'always' | 'rise-at-end';
+  /**
+   * 幕内年份关键帧：atFrame 为相对内容起点的帧（与对应场景文件的时间表一致），
+   * 到达时时间轴滑到 year，左上角年份随之滚动。
+   */
+  yearStops?: readonly { atFrame: number; year: number }[];
   copy: Record<string, unknown>;
 };
 
@@ -231,8 +236,60 @@ export const scene05 = {
   chrome: 'always',
   audio: 'audio/scene05-iteration.mp3',
   narration: NARRATION_TODO,
+  // v4 翻牌时（Scene05Iteration 的 T.v4）时间轴滑到 2018
+  yearStops: [{ atFrame: 470, year: 2018 }],
   copy: {
-    versions: ['v2', 'v3', 'v4'],
+    /** 翻牌的版本号、年份与 1–2 个关键特性（待核对） */
+    versions: [
+      {
+        version: 'v2',
+        year: '2017',
+        features: ['原生支持 ES Modules（import / export）', 'Tree Shaking：剔除未被使用的导出'],
+      },
+      { version: 'v3', year: '2017', features: ['Scope Hoisting：把模块合并进同一个作用域'] },
+      { version: 'v4', year: '2018', features: ['新增 mode 选项，按环境内置默认配置', '没有配置文件也能直接构建'] },
+    ],
+    /** v2 的 Tree Shaking 演示：依赖树上未被使用的导出变灰并脱落（文件名为示意） */
+    treeShaking: {
+      root: 'main.js',
+      modules: [
+        {
+          label: 'math.js',
+          exports: [
+            { label: 'add', used: true },
+            { label: 'sub', used: false },
+            { label: 'mul', used: false },
+          ],
+        },
+        {
+          label: 'format.js',
+          exports: [
+            { label: 'date', used: true },
+            { label: 'currency', used: false },
+          ],
+        },
+      ],
+      /** 待核对 */
+      caption: '未被使用的导出，不会进入最终产物',
+    },
+    /**
+     * v4 演示：一份长配置折叠成一行。
+     * 待核对：这里列出的插件应当都是 webpack 4 的 production 模式默认启用的。
+     */
+    configFilename: 'webpack.config.js',
+    configBefore: [
+      'module.exports = {',
+      "  entry: './src/index.js',",
+      '  plugins: [',
+      '    new webpack.DefinePlugin({',
+      "      'process.env.NODE_ENV': JSON.stringify('production'),",
+      '    }),',
+      '    new UglifyJsPlugin(),',
+      '    new webpack.optimize.ModuleConcatenationPlugin(),',
+      '    new webpack.NoEmitOnErrorsPlugin(),',
+      '  ],',
+      '};',
+    ],
     modeLine: "mode: 'production'",
   },
 } as const satisfies SceneConfig;
@@ -250,8 +307,64 @@ export const scene06 = {
   chrome: 'always',
   audio: 'audio/scene06-config-pain.mp3',
   narration: NARRATION_TODO,
+  // 配置滚动结束、切到 v5 时（Scene06ConfigPain 的 T.v5）时间轴滑到 2020
+  yearStops: [{ atFrame: 300, year: 2020 }],
   copy: {
     configFilename: 'webpack.config.js',
+    /** 持续滚动的配置内容（示意），循环拼接成很长的文件 */
+    configTemplate: [
+      'module.exports = (env, argv) => ({',
+      "  entry: { main: './src/index.js', admin: './src/admin.js' },",
+      '  output: {',
+      "    path: path.resolve(__dirname, 'dist'),",
+      "    filename: '[name].[contenthash:8].js',",
+      "    publicPath: '/static/',",
+      '  },',
+      '  resolve: {',
+      "    extensions: ['.ts', '.tsx', '.js', '.json'],",
+      "    alias: { '@': path.resolve(__dirname, 'src') },",
+      '  },',
+      '  module: {',
+      '    rules: [',
+      "      { test: /\.tsx?$/, use: 'ts-loader', exclude: /node_modules/ },",
+      '      {',
+      '        test: /\.s?css$/,',
+      "        use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader', 'sass-loader'],",
+      '      },',
+      "      { test: /\.(png|jpe?g|gif)$/, use: [{ loader: 'url-loader', options: { limit: 8192 } }] },",
+      "      { test: /\.svg$/, use: ['@svgr/webpack', 'file-loader'] },",
+      '    ],',
+      '  },',
+      '  optimization: {',
+      '    splitChunks: {',
+      '      cacheGroups: {',
+      "        vendor: { test: /node_modules/, name: 'vendors', chunks: 'all' },",
+      '      },',
+      '    },',
+      '  },',
+      '  plugins: [',
+      "    new HtmlWebpackPlugin({ template: './public/index.html' }),",
+      "    new MiniCssExtractPlugin({ filename: '[name].[contenthash:8].css' }),",
+      '    new webpack.DefinePlugin({ __DEV__: argv.mode !== "production" }),',
+      '  ],',
+      '});',
+      '',
+    ],
+    /** 滚动时右侧的一句（待核对：分镜外补充，可删为空字符串） */
+    painCaption: '配置越写越长，越来越难维护',
+    v5Heading: 'webpack 5',
+    cache: {
+      title: '持久化缓存',
+      firstLabel: '第一次构建',
+      secondLabel: '第二次构建（命中缓存）',
+    },
+    federation: {
+      title: '模块联邦',
+      /** 三个独立应用（名称为示意） */
+      apps: ['app-shell', 'app-cart', 'app-search'],
+      /** 在应用之间流动的共享模块（名称为示意） */
+      shared: ['react', '<Cart />', '<Search />'],
+    },
   },
 } as const satisfies SceneConfig;
 

@@ -18,3 +18,9 @@ export const horizontalCurve = (a: Point, b: Point, bend = 0.5): [Point, Point, 
 /** 曲线 → SVG path d */
 export const curvePath = ([p0, p1, p2, p3]: readonly [Point, Point, Point, Point]): string =>
   `M${p0[0]},${p0[1]} C${p1[0]},${p1[1]} ${p2[0]},${p2[1]} ${p3[0]},${p3[1]}`;
+
+/** 垂直方向的 S 形曲线控制点：从 a 垂直出发，垂直进入 b */
+export const verticalCurve = (a: Point, b: Point, bend = 0.5): [Point, Point, Point, Point] => {
+  const dy = (b[1] - a[1]) * bend;
+  return [a, [a[0], a[1] + dy], [b[0], b[1] - dy], b];
+};
