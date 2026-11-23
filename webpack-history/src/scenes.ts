@@ -54,7 +54,6 @@ export type ToolCopy = {
   description: string;
 };
 
-const NARRATION_TODO = '（旁白待补）';
 
 // ─────────────────────────────────────────────────────────────
 // 1. 开场
@@ -65,10 +64,10 @@ export const scene01 = {
   years: [2009, 2026],
   yearsLabel: '2009 – 2026',
   focusYear: 2009,
-  durationSeconds: 15,
+  durationSeconds: 22,
   chrome: 'rise-at-end',
   audio: 'audio/scene01-intro.mp3',
-  narration: NARRATION_TODO,
+  narration: "每天，我们都会敲下这一行：npm run build。几秒钟后，成百上千个模块，被打包成几个文件。这件事看起来理所当然，但它的背后，是前端工程化十几年的演进。今天，我们来讲讲 webpack 的故事。",
   copy: {
     terminalTitle: 'zsh — ~/my-app',
     command: 'npm run build',
@@ -100,10 +99,10 @@ export const scene02 = {
   years: [2009, 2012],
   yearsLabel: '2009 – 2012',
   focusYear: 2009,
-  durationSeconds: 27,
+  durationSeconds: 60,
   chrome: 'always',
   audio: 'audio/scene02-prehistory.mp3',
-  narration: NARRATION_TODO,
+  narration: "在没有打包工具的年代，一个页面就是一串 script 标签。脚本按顺序加载，依赖关系全靠人工维护；所有变量都挂在全局，一不小心就互相覆盖；文件越多，请求也越多。\n\n2009 年，Node.js 问世，服务端 JavaScript 用上了 CommonJS 规范：一个文件就是一个模块，用 require 引入。可是，浏览器并不认识 require。\n\n社区开始各自寻找出路。RequireJS 推行 AMD 规范，让浏览器异步加载模块；Browserify 换了个思路，把 Node 风格的模块打包成一个文件，直接在浏览器里运行；Grunt 则把合并、压缩这些重复劳动，交给了任务脚本。\n\n加载、打包、构建，各管一段。还没有人把这些问题放在一起解决。",
   copy: {
     codeFilename: 'index.html',
     /** 逐行追加的 <script src> 文件名（示意） */
@@ -133,12 +132,56 @@ export const scene02 = {
      * https://requirejs.org/docs/whyamd.html · https://browserify.org/ · https://gruntjs.com/
      */
     tools: [
-      { tool: 'requirejs', name: 'RequireJS', description: '用 AMD 规范在浏览器中异步加载模块' },
-      { tool: 'browserify', name: 'Browserify', description: '让浏览器也能使用 Node 风格的 require()' },
-      { tool: 'grunt', name: 'Grunt', description: '用任务脚本自动完成合并、压缩等步骤' },
+      {
+        tool: 'requirejs',
+        name: 'RequireJS',
+        description: '用 AMD 规范在浏览器中异步加载模块',
+        // 演示：AMD 的 define 写法（示意代码）
+        demo: {
+          filename: 'main.js',
+          lines: ["define(['jquery', 'app/cart'], function ($, cart) {", "  cart.render($('#cart'));", '});'],
+        },
+      },
+      {
+        tool: 'browserify',
+        name: 'Browserify',
+        description: '让浏览器也能使用 Node 风格的 require()',
+        // 演示：README 中的标准用法 browserify main.js -o bundle.js
+        demo: {
+          filename: 'terminal',
+          lines: ['$ browserify main.js -o bundle.js', '// main.js 和它 require 的所有模块 → 一个 bundle.js'],
+        },
+      },
+      {
+        tool: 'grunt',
+        name: 'Grunt',
+        description: '用任务脚本自动完成合并、压缩等步骤',
+        // 演示：concat + uglify 两个任务（示意配置）
+        demo: {
+          filename: 'Gruntfile.js',
+          lines: [
+            'grunt.initConfig({',
+            "  concat: { dist: { src: ['src/**/*.js'], dest: 'dist/app.js' } },",
+            "  uglify: { dist: { files: { 'dist/app.min.js': ['dist/app.js'] } } },",
+            '});',
+            "grunt.registerTask('default', ['concat', 'uglify']);",
+          ],
+        },
+      },
     ],
+    /**
+     * Node.js 与 CommonJS：同一行 require，在 Node 里正常运行，在浏览器里报错。
+     * 已核对：Node.js 2009 年发布；浏览器原生没有 require，调用会抛出 ReferenceError。
+     */
+    commonjs: {
+      code: ["const cart = require('./cart');", 'cart.render();'],
+      nodeLabel: 'server.js · Node.js（2009）',
+      nodeResult: '✓ 正常运行',
+      browserLabel: 'app.js · 浏览器',
+      browserResult: 'Uncaught ReferenceError: require is not defined',
+    },
     /** 收尾一句（待核对：分镜外补充，可删为空字符串） */
-    conclusion: '加载、打包、构建任务各管一段，还没有一个统一的答案。',
+    conclusion: '加载、打包、构建，各管一段 —— 还没有人把这些问题放在一起解决。',
   },
 } as const satisfies SceneConfig;
 
@@ -151,10 +194,10 @@ export const scene03 = {
   years: [2012, 2012],
   yearsLabel: '2012',
   focusYear: 2012,
-  durationSeconds: 27,
+  durationSeconds: 52,
   chrome: 'always',
   audio: 'audio/scene03-birth.mp3',
-  narration: NARRATION_TODO,
+  narration: "2012 年 2 月，Tobias Koppers 在另一个打包工具的仓库里提了一个想法：能不能像 Google 的 GWT 那样，做代码分割，按需加载。没过多久，他决定自己动手。2012 年 3 月，webpack 的第一个提交诞生了。\n\nwebpack 的核心想法很简单：一切皆模块。JavaScript 是模块，CSS、图片、字体也是模块。它从入口文件出发，顺着依赖关系走遍整个项目，把所有模块打包输出；遇到需要按需加载的部分，再拆成独立的代码块。\n\n不过，这里也埋下了第一个代价：每个模块都要包进一个函数，产物里多出一层模块运行时。",
   copy: {
     /** 幕末「代价」：由第 5 幕 v3 的 Scope Hoisting 回应 */
     cost: {
@@ -172,6 +215,22 @@ export const scene03 = {
     outputDir: 'dist/',
     output: 'bundle.js',
     outputLabel: 'JS',
+    /** 按需加载时拆出的独立代码块（文件名为示意） */
+    chunk: '1.chunk.js',
+    /**
+     * 起源（已核对）：2012-02-23 在 modules-webmake 的 issue #7 提出 GWT 式代码分割；
+     * 2012-03-10 webpack 仓库首个提交，项目最初名为 modules-webpack。
+     * https://github.com/medikoo/modules-webmake/issues/7
+     */
+    origin: {
+      issueTitle: 'modules-webmake · issue #7',
+      issueDate: '2012-02-23',
+      issueQuote: 'GWT has a cool feature named Code Splitting which loads parts of the code on demand',
+      issueQuoteZh: '“GWT 有个很酷的功能叫代码分割，能按需加载部分代码。”',
+      commitTitle: 'webpack · 首个提交',
+      commitDate: '2012-03-10',
+      commitNote: '项目最初叫 modules-webpack',
+    },
     keywords: ['一切皆模块', '代码分割'],
     // 已核对：Tobias Koppers（sokra），仓库首个提交 2012-03-10；动机是实现 GWT 式的代码分割。
     // https://github.com/medikoo/modules-webmake/issues/7
@@ -189,15 +248,54 @@ export const scene04 = {
   years: [2014, 2016],
   yearsLabel: '2014 – 2016',
   focusYear: 2014,
-  durationSeconds: 34,
+  durationSeconds: 55,
   chrome: 'always',
   audio: 'audio/scene04-rise.mp3',
-  narration: NARRATION_TODO,
+  narration: "2014 年 2 月，webpack 1.0 正式发布。同年，Pete Hunt 发布了 webpack-howto，介绍 Instagram 是怎样使用 webpack 的。\n\n让 webpack 脱颖而出的，是三样东西。loader 能把任何文件转换成模块，比如串起 style-loader 和 css-loader，样式就能直接 import 进 JavaScript。plugin 能介入构建的每一个环节，扩展出各种能力。热模块替换让你改完代码，页面不用刷新，只更新改动的那一块。\n\n单页应用迅速流行，webpack 成了它们的标配。\n\n但代价也随之而来：开发服务器必须先建好完整的依赖图，才能启动。项目越大，等得越久。",
   copy: {
     /** 幕末「代价」：第 6 幕的持久化缓存只能缓解，第 7 幕的 Vite 换掉了这一层 */
     cost: {
       text: '依赖图要先完整建好，开发服务器才能启动',
       notes: ['项目越大，启动越慢'],
+    },
+    /**
+     * 里程碑（已核对）：webpack 1.0.0 发布于 2014-02-19；Pete Hunt 的 webpack-howto（2014-07）
+     * 开篇写明 "This includes most things we use at Instagram"。
+     * https://github.com/webpack/webpack/releases/tag/v1.0.0 · https://github.com/petehunt/webpack-howto
+     */
+    milestones: {
+      releaseDate: '2014-02-19',
+      releaseTitle: 'webpack 1.0 正式发布',
+      howtoDate: '2014',
+      howtoTitle: 'Pete Hunt · webpack-howto',
+      howtoQuote: 'This includes most things we use at Instagram',
+      howtoQuoteZh: '“这里包含了我们在 Instagram 用到的大部分做法。”',
+    },
+    /** loader 链演示：css-loader 先把 CSS 转成模块，style-loader 再把它注入页面（文件名为示意） */
+    loader: {
+      label: 'loader',
+      codeFilename: 'app.js',
+      code: ["require('./main.css');"],
+      chain: ['main.css', 'css-loader', 'style-loader', '<style> 注入页面'],
+      caption: 'loader 可以串成一条链：css-loader 先把 CSS 转成模块，style-loader 再把它注入页面',
+    },
+    /**
+     * plugin 演示：构建流程中的几个钩子（compiler.hooks.compile / make、compilation.hooks.optimize、
+     * compiler.hooks.emit 均为 webpack 公开的钩子名）；插件名为示意。
+     */
+    plugin: {
+      label: 'plugin',
+      stages: [
+        { hook: 'compile', name: '开始编译' },
+        { hook: 'make', name: '构建依赖图' },
+        { hook: 'optimize', name: '优化' },
+        { hook: 'emit', name: '输出文件' },
+      ],
+      plugins: [
+        { name: 'MyPlugin', stage: 1 },
+        { name: 'AnotherPlugin', stage: 3 },
+      ],
+      caption: 'plugin 通过钩子介入构建的各个环节，扩展出各种能力',
     },
     /** 依赖图（文件名为示意）。layer 0 为入口，连线从父节点指向子节点 */
     graph: {
@@ -263,10 +361,10 @@ export const scene05 = {
   years: [2017, 2018],
   yearsLabel: '2017 – 2018',
   focusYear: 2017,
-  durationSeconds: 32,
+  durationSeconds: 60,
   chrome: 'always',
   audio: 'audio/scene05-iteration.mp3',
-  narration: NARRATION_TODO,
+  narration: "2017 年 1 月，webpack 2 发布，原生支持 ES 模块的 import 和 export。ES 模块的依赖关系在编译时就能确定，webpack 可以标记出没被用到的导出，再交给压缩工具删掉。这就是 Tree Shaking。\n\n半年后，webpack 3 带来了实验性的 Scope Hoisting：把多个 ES 模块合并进同一个作用域，正好回应了“每个模块都要包一层函数”的代价。\n\n2018 年 2 月，webpack 4 发布。新增的 mode 选项按环境内置了默认配置，没有配置文件也能直接构建；SplitChunksPlugin 取代了难以配置的 CommonsChunkPlugin；package.json 里的 sideEffects 字段，让 Tree Shaking 能删得更多。\n\n可是，默认配置只覆盖了简单项目。真实项目里，配置照样越写越长。",
   // v4 翻牌时（Scene05Iteration 的 T.v4）时间轴滑到 2018
   yearStops: [{ atFrame: 510, year: 2018 }],
   copy: {
@@ -357,13 +455,13 @@ export const scene05 = {
 export const scene06 = {
   id: 'scene06-config-pain',
   title: '配置之痛',
-  years: [2018, 2020],
-  yearsLabel: '2018 – 2020',
+  years: [2016, 2019],
+  yearsLabel: '2016 – 2019',
   focusYear: 2018,
-  durationSeconds: 29,
+  durationSeconds: 42,
   chrome: 'always',
   audio: 'audio/scene06-config-pain.mp3',
-  narration: NARRATION_TODO,
+  narration: "那几年，一份真实项目的 webpack 配置，往往要处理多个入口、各种 loader、压缩、分包、环境变量，开发和生产还要分开维护。配置复杂到仿佛需要专人维护，“webpack 配置工程师”，成了前端圈半是吐槽、半是自嘲的说法。\n\n解决的办法，是把配置藏起来。2016 年的 create-react-app，还有 Vue CLI、Next.js，都在 webpack 之上做了一层封装，让大多数开发者不必再直接面对配置。\n\n问题并没有消失，只是交给了框架的作者。",
   // 配置滚动结束、切到 v5 时（Scene06ConfigPain 的 T.v5）时间轴滑到 2020
   yearStops: [{ atFrame: 300, year: 2020 }],
   copy: {
@@ -437,18 +535,66 @@ export const scene06 = {
 } as const satisfies SceneConfig;
 
 // ─────────────────────────────────────────────────────────────
-// 7. 挑战者（柱状图数据见 src/data/benchmark.ts）
+// 7. webpack 5（待制作）
 // ─────────────────────────────────────────────────────────────
 export const scene07 = {
-  id: 'scene07-challengers',
+  id: 'scene07-webpack5',
+  title: 'webpack 5',
+  years: [2020, 2020],
+  yearsLabel: '2020.10',
+  focusYear: 2020,
+  durationSeconds: 55,
+  chrome: 'always',
+  audio: 'audio/scene07-webpack5.mp3',
+  narration: "2020 年 10 月 10 日，webpack 5 发布。\n\n持久化缓存可以把构建结果写到磁盘，第二次构建时，没有改动的模块不必重新编译。模块联邦让多个独立部署的应用在运行时共享代码，成了微前端的重要方案。资源模块取代了 file-loader、url-loader 和 raw-loader。生产模式默认使用稳定的模块 ID，长期缓存更加可靠。\n\n它也做了一次大胆的取舍：不再自动为 Node.js 的核心模块注入浏览器 polyfill。产物更干净了，但这是一次破坏性的升级，不少项目需要手动补上。\n\n然而，缓存只能加速重复的构建，改变不了底层的设计。",
+  copy: {},
+} as const satisfies SceneConfig;
+
+// ─────────────────────────────────────────────────────────────
+// 8. 走出浏览器（待制作）
+// ─────────────────────────────────────────────────────────────
+export const scene08 = {
+  id: 'scene08-beyond',
+  title: '走出浏览器',
+  years: [2016, 2021],
+  yearsLabel: '2016 – 2021',
+  focusYear: 2020,
+  durationSeconds: 60,
+  chrome: 'always',
+  audio: 'audio/scene08-beyond.mp3',
+  narration: "webpack 的影响，远不止浏览器。\n\n它的 target 选项能为 Node.js、Electron、Web Worker 等不同环境生成产物；loader 和 plugin 又能把代码改造成几乎任何格式。于是，一大批跨端方案，都把 webpack 当成了编译底座。\n\n小程序领域，Taro 从 2.0 开始基于 webpack 编译，uni-app 的 Vue 2 版本建立在 Vue CLI 之上，微信官方的 kbone 用 webpack 插件把网页代码转成小程序，快应用的工具链至今仍在用 webpack。原生渲染方向，Weex、Hippy 和 NativeScript 都用 webpack 打包。桌面端有 Electron Forge 的 webpack 插件；服务端，Next.js 用它打包服务端渲染的代码；微前端框架 qiankun，则要求子应用用 webpack 打包成 UMD 格式。\n\nwebpack，成了前端工程的通用编译器。",
+  copy: {},
+} as const satisfies SceneConfig;
+
+// ─────────────────────────────────────────────────────────────
+// 9. 为什么修不好（待制作）
+// ─────────────────────────────────────────────────────────────
+export const scene09 = {
+  id: 'scene09-limits',
+  title: '为什么修不好',
+  years: [2020, 2020],
+  yearsLabel: '2020',
+  focusYear: 2020,
+  durationSeconds: 43,
+  chrome: 'always',
+  audio: 'audio/scene09-limits.mp3',
+  narration: "那么，webpack 为什么没能一直快下去？问题出在底层设计的三个前提。\n\n第一，开发时要先全量打包，依赖图建完才能启动。第二，构建主要跑在 JavaScript 的单线程上，thread-loader 也只能把 loader 分到多个进程里。第三，插件直接操作 compiler、compilation 这些内部对象，生态越繁荣，内核越难大改。\n\n持久化缓存、按需编译，这些补救都有效，却动不了这三个前提。要突破，只能另起炉灶。",
+  copy: {},
+} as const satisfies SceneConfig;
+
+// ─────────────────────────────────────────────────────────────
+// 10. 挑战者（柱状图数据见 src/data/benchmark.ts）
+// ─────────────────────────────────────────────────────────────
+export const scene10 = {
+  id: 'scene10-challengers',
   title: '挑战者',
   years: [2020, 2024],
   yearsLabel: '2020 – 2024',
   focusYear: 2020,
-  durationSeconds: 34,
+  durationSeconds: 60,
   chrome: 'always',
-  audio: 'audio/scene07-challengers.mp3',
-  narration: NARRATION_TODO,
+  audio: 'audio/scene10-challengers.mp3',
+  narration: "其实，另起炉灶的人早就有了。2015 年的 Rollup 以打包库见长，从一开始就把模块合并进同一个作用域；2017 年的 Parcel，主打零配置。\n\n2020 年，新一代工具集中出现。用 Go 编写的 esbuild 能多核并行，换掉了“用 JavaScript 实现”这一层；Vite 在开发时直接利用浏览器原生的 ES 模块按需编译，换掉了“先打包再启动”这一层。2022 年，Vercel 公布了用 Rust 编写、基于增量计算的 Turbopack。2023 年，字节跳动开源 Rspack：用 Rust 重写内核，同时兼容绝大多数 webpack 的配置和插件，保留接口，换掉实现。\n\n不过，新工具也有自己的取舍。Vite 早期开发用 esbuild、生产用 Rollup，直到 2026 年的 Vite 8，才统一为 Rolldown。没有银弹。",
   /**
    * 时间轴随工具登场逐年推进，避免第 8 幕从 2020 一次跳到 2026：
    * Turbopack 登场前滑到 2022，Rspack 登场前滑到 2023，本幕收尾时滑到 2024。
@@ -498,20 +644,34 @@ export const scene07 = {
 } as const satisfies SceneConfig;
 
 // ─────────────────────────────────────────────────────────────
-// 8. 今天
+// 11. 迁移潮（待制作）
 // ─────────────────────────────────────────────────────────────
-export const scene08 = {
-  id: 'scene08-today',
+export const scene11 = {
+  id: 'scene11-migration',
+  title: '迁移潮',
+  years: [2023, 2026],
+  yearsLabel: '2023 – 2026',
+  focusYear: 2024,
+  durationSeconds: 40,
+  chrome: 'always',
+  audio: 'audio/scene11-migration.mp3',
+  narration: "接下来几年，主流框架陆续换了引擎。2023 年，Angular 17 默认改用基于 esbuild 的构建；2025 年 2 月，React 团队宣布不再推荐用 create-react-app 创建新项目；同年 10 月，Next.js 16 把默认打包器换成了 Turbopack；2026 年，Nest.js 12 的 monorepo 默认改用 Rspack。\n\n跨端领域，Taro 4 和 uni-app 的 Vue 3 版本支持了 Vite，Re.Pack 和字节跳动的 Lynx，则选择了 Rspack。",
+  copy: {},
+} as const satisfies SceneConfig;
+
+// ─────────────────────────────────────────────────────────────
+// 12. 今天
+// ─────────────────────────────────────────────────────────────
+export const scene12 = {
+  id: 'scene12-today',
   title: '今天',
   years: [2026, 2026],
   yearsLabel: '2026',
   focusYear: 2026,
-  durationSeconds: 22,
+  durationSeconds: 36,
   chrome: 'always',
-  audio: 'audio/scene08-today.mp3',
-  narration: NARRATION_TODO,
-  // 片尾标题出现前（Scene08Today 的 T.end），时间轴与左上角年份随内容一起退场
-  chromeExitAt: 480,
+  audio: 'audio/scene12-today.mp3',
+  narration: "但 webpack 并没有停下。2026 年，它依然保持着每月一个小版本的节奏。原生 CSS 和 HTML 支持已经内置，TypeScript 支持也已加入；新增了 Bun 和 Deno 运行目标；核心的多线程能力，也在设计之中。模块联邦 2.0 已经独立维护，可以跨多种打包工具使用。\n\n官方路线图上，下一站是 webpack 6。",
   copy: {
     /** 依次被吸入立方体的三个插件图标：图标上的短标签 + 图标下的名称 */
     plugins: [
@@ -536,6 +696,42 @@ export const scene08 = {
   },
 } as const satisfies SceneConfig;
 
-export const scenes = [scene01, scene02, scene03, scene04, scene05, scene06, scene07, scene08] as const;
+// ─────────────────────────────────────────────────────────────
+// 13. 尾声（待制作）
+// ─────────────────────────────────────────────────────────────
+export const scene13 = {
+  id: 'scene13-outro',
+  title: '尾声',
+  years: [2026, 2026],
+  yearsLabel: '2026',
+  focusYear: 2026,
+  durationSeconds: 15,
+  chrome: 'always',
+  audio: 'audio/scene13-outro.mp3',
+  narration: "打包工具会更替，问题与思想会留下。每一个方案，都带着它的代价。这就是 webpack 的故事。",
+  copy: {},
+} as const satisfies SceneConfig;
+
+export const scenes = [
+  scene01,
+  scene02,
+  scene03,
+  scene04,
+  scene05,
+  scene06,
+  scene07,
+  scene08,
+  scene09,
+  scene10,
+  scene11,
+  scene12,
+  scene13,
+] as const;
+
+/** 界面上的通用文字 */
+export const ui = {
+  /** 尚未制作的幕在预览中显示的提示 */
+  pendingScene: '本幕制作中',
+} as const;
 
 export type SceneId = (typeof scenes)[number]['id'];

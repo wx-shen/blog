@@ -5,11 +5,12 @@ import { CodeBlock } from '../components/CodeBlock';
 import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { ToolBadge } from '../components/ToolBadge';
-import { exitProgress, moveProgress, rangeProgress } from '../lib/anim';
+import { enterExitStyle, exitProgress, moveProgress, rangeProgress } from '../lib/anim';
 import { scene02 } from '../scenes';
 import { fontSize, layout, space, toolColors, video } from '../theme';
 
 const COPY = scene02.copy;
+const CJS = COPY.commonjs;
 
 const LINES = COPY.scripts.map((s) => `<script src="${s}"></script>`);
 
@@ -29,7 +30,8 @@ const LINE_FRAMES = (() => {
 
 const LAST_LINE = LINE_FRAMES[LINE_FRAMES.length - 1];
 
-// 本幕时间表（帧，相对内容起点）
+// 本幕时间表（帧，相对内容起点），与旁白四段对齐：
+// ① script 标签之痛 → ② Node.js 与 CommonJS → ③ 三个工具各自的出路 → ④ 各管一段
 const T = {
   warnStart: LAST_LINE + 6,
   warnEnd: LAST_LINE + 30,
@@ -37,14 +39,29 @@ const T = {
   painStep: 30,
   collapse: LAST_LINE + 190,
   collapseFrames: 30,
-  badges: LAST_LINE + 236,
-  badgeStep: 70,
-  conclusion: LAST_LINE + 470,
+  // ② CommonJS
+  nodePanel: 420,
+  browserPanel: 450,
+  nodeResult: 520,
+  browserResult: 560,
+  cjsOut: 760,
+  // ③ 工具：每个工具 240 帧（徽章 → 演示 → 下一个）
+  badges: 790,
+  badgeStep: 240,
+  demoDelay: 30,
+  toolsOut: 1500,
+  // ④ 收尾
+  conclusion: 1530,
 } as const;
 
 const CODE_WIDTH = 980;
+const CONTENT_WIDTH = video.width - space.safe * 2;
 const BADGE_WIDTH = 500;
-const BADGE_GAP = (video.width - space.safe * 2 - BADGE_WIDTH * 3) / 2;
+const BADGE_GAP = (CONTENT_WIDTH - BADGE_WIDTH * 3) / 2;
+const PANEL_WIDTH = (CONTENT_WIDTH - space.xl) / 2;
+const DEMO_TOP = layout.contentTop + 210;
+
+const badgeAt = (i: number) => T.badges + i * T.badgeStep;
 
 export const Scene02Prehistory: React.FC<SceneProps> = () => {
   const frame = useCurrentFrame();
@@ -53,12 +70,15 @@ export const Scene02Prehistory: React.FC<SceneProps> = () => {
   const warning = rangeProgress(frame, T.warnStart, T.warnEnd);
   const collapse = moveProgress(frame, fps, T.collapse, T.collapseFrames);
   const painsOut = exitProgress(frame, T.collapse);
+  const toolsOut = exitProgress(frame, T.toolsOut);
+  // 当前讲到第几个工具
+  const active = COPY.tools.reduce((acc, _, i) => (frame >= badgeAt(i) ? i : acc), -1);
 
   return (
     <AbsoluteFill>
       <SceneTitle title={scene02.title} years={scene02.yearsLabel} />
 
-      {/* script 标签不断堆叠，溢出屏幕后变为警示色，然后收拢 */}
+      {/* ① script 标签不断堆叠，溢出屏幕后变为警示色，然后收拢 */}
       {collapse < 1 ? (
         <div
           style={{
@@ -81,7 +101,6 @@ export const Scene02Prehistory: React.FC<SceneProps> = () => {
         </div>
       ) : null}
 
-      {/* 痛点 */}
       {painsOut > 0 && COPY.pains.length > 0 ? (
         <div
           style={{
@@ -104,36 +123,76 @@ export const Scene02Prehistory: React.FC<SceneProps> = () => {
         </div>
       ) : null}
 
-      {/* 社区的三种方案 */}
-      {frame >= T.badges ? (
-        <div
-          style={{
-            position: 'absolute',
-            left: space.safe,
-            top: layout.contentTop + space.xxl,
-            display: 'flex',
-            gap: BADGE_GAP,
-          }}
-        >
-          {COPY.tools.map((t, i) => (
-            <ToolBadge
-              key={t.name}
-              name={t.name}
-              color={toolColors[t.tool]}
-              description={t.description}
-              delay={T.badges + i * T.badgeStep}
-              width={BADGE_WIDTH}
+      {/* ② Node.js 与 CommonJS：同一行 require，两种结局 */}
+      {frame >= T.nodePanel && frame < T.cjsOut + 14 ? (
+        <>
+          <div style={{ position: 'absolute', left: space.safe, top: layout.contentTop + 60, ...enterExitStyle(frame, fps, T.nodePanel, T.cjsOut) }}>
+            <CodeBlock filename={CJS.nodeLabel} lines={CJS.code} width={PANEL_WIDTH} />
+            <Caption delay={T.nodeResult} exitAt={T.cjsOut} size="note" tone="success" style={{ marginTop: space.md }}>
+              {CJS.nodeResult}
+            </Caption>
+          </div>
+          <div
+            style={{
+              position: 'absolute',
+              left: space.safe + PANEL_WIDTH + space.xl,
+              top: layout.contentTop + 60,
+              ...enterExitStyle(frame, fps, T.browserPanel, T.cjsOut),
+            }}
+          >
+            <CodeBlock
+              filename={CJS.browserLabel}
+              lines={CJS.code}
+              width={PANEL_WIDTH}
+              warning={rangeProgress(frame, T.browserResult, T.browserResult + 16)}
             />
-          ))}
-        </div>
+            <Caption delay={T.browserResult} exitAt={T.cjsOut} size="note" tone="warning" style={{ marginTop: space.md }}>
+              {CJS.browserResult}
+            </Caption>
+          </div>
+        </>
       ) : null}
 
+      {/* ③ 社区的三种出路：徽章一字排开，下方轮流演示 */}
+      {frame >= T.badges && toolsOut > 0 ? (
+        <AbsoluteFill style={{ opacity: toolsOut }}>
+          <div style={{ position: 'absolute', left: space.safe, top: layout.contentTop, display: 'flex', gap: BADGE_GAP }}>
+            {COPY.tools.map((t, i) => (
+              <ToolBadge
+                key={t.name}
+                name={t.name}
+                color={toolColors[t.tool]}
+                description={t.description}
+                delay={badgeAt(i)}
+                width={BADGE_WIDTH}
+                dim={i < active ? rangeProgress(frame, badgeAt(active), badgeAt(active) + 12) : 0}
+              />
+            ))}
+          </div>
+          {COPY.tools.map((t, i) => {
+            const start = badgeAt(i) + T.demoDelay;
+            const end = i + 1 < COPY.tools.length ? badgeAt(i + 1) - 12 : null;
+            if (frame < start || (end !== null && frame > end + 12)) return null;
+            return (
+              <div
+                key={t.name}
+                style={{ position: 'absolute', left: space.safe, top: DEMO_TOP, ...enterExitStyle(frame, fps, start, end) }}
+              >
+                <CodeBlock filename={t.demo.filename} lines={t.demo.lines} width={CONTENT_WIDTH} fontSize={fontSize.code - 2} />
+              </div>
+            );
+          })}
+        </AbsoluteFill>
+      ) : null}
+
+      {/* ④ 各管一段 */}
       {COPY.conclusion ? (
         <Caption
           delay={T.conclusion}
-          size="note"
-          tone="dim"
-          style={{ position: 'absolute', left: space.safe, top: layout.contentTop + 400 }}
+          size="body"
+          tone="normal"
+          weight="bold"
+          style={{ position: 'absolute', left: space.safe, top: layout.contentTop + 200, width: CONTENT_WIDTH }}
         >
           {COPY.conclusion}
         </Caption>

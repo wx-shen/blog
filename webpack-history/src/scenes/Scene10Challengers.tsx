@@ -7,10 +7,10 @@ import { SceneTitle } from '../components/SceneTitle';
 import { ToolBadge } from '../components/ToolBadge';
 import { enterExitStyle, exitProgress } from '../lib/anim';
 import { benchmark } from '../data/benchmark';
-import { scene07, thread } from '../scenes';
+import { scene10, thread } from '../scenes';
 import { colors, fonts, fontSize, layout, space, toolColors, transition, video } from '../theme';
 
-const COPY = scene07.copy;
+const COPY = scene10.copy;
 
 // ───────────── 时间表（帧，相对内容起点） ─────────────
 const T = {
@@ -27,7 +27,7 @@ const T = {
  * 则等时间轴滑到该年份之后再登场（先滑动、再入场，同屏运动元素不超过 3 个）。
  */
 const badgeDelay = (i: number): number => {
-  const stop = scene07.yearStops.find((s) => s.year === COPY.tools[i].year);
+  const stop = scene10.yearStops.find((s) => s.year === COPY.tools[i].year);
   return stop ? stop.atFrame + transition.timelineSlide : T.badges + i * T.badgeStep;
 };
 
@@ -37,14 +37,14 @@ const BADGE_WIDTH = (CONTENT_WIDTH - BADGE_GAP) / 2;
 /** 数据来源文字：画面右下角（正文区底边，Timeline 之上） */
 const SOURCE_TOP = layout.contentBottom - fontSize.small * 1.5;
 
-export const Scene07Challengers: React.FC<SceneProps> = ({ duration }) => {
+export const Scene10Challengers: React.FC<SceneProps> = ({ duration }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const chartOut = exitProgress(frame, T.chartOut);
 
   return (
     <AbsoluteFill>
-      <SceneTitle title={scene07.title} years={scene07.yearsLabel} />
+      <SceneTitle title={scene10.title} years={scene10.yearsLabel} />
 
       {/* ① 构建耗时柱状图：数据来自 src/data/benchmark.ts */}
       {chartOut > 0 ? (
@@ -111,8 +111,8 @@ export const Scene07Challengers: React.FC<SceneProps> = ({ duration }) => {
       <CostBeat
         at={duration - transition.costLead}
         label={thread.costLabel}
-        text={scene07.copy.cost.text}
-        notes={scene07.copy.cost.notes}
+        text={scene10.copy.cost.text}
+        notes={scene10.copy.cost.notes}
       />
     </AbsoluteFill>
   );

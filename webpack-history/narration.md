@@ -69,13 +69,13 @@ webpack 的核心想法很简单：一切皆模块。JavaScript 是模块，CSS�
 
 ## 6 配置之痛 · 2016–2019 · 42s
 
-那几年，一份真实项目的 webpack 配置，往往要处理多个入口、各种 loader、压缩、分包、环境变量，开发和生产还要分开维护。“webpack 配置工程师”，一度成了社区里的玩笑。【停顿】
+那几年，一份真实项目的 webpack 配置，往往要处理多个入口、各种 loader、压缩、分包、环境变量，开发和生产还要分开维护。配置复杂到仿佛需要专人维护，“webpack 配置工程师”，成了前端圈半是吐槽、半是自嘲的说法。【停顿】
 
 解决的办法，是把配置藏起来。2016 年的 create-react-app，还有 Vue CLI、Next.js，都在 webpack 之上做了一层封装，让大多数开发者不必再直接面对配置。【停顿】
 
 问题并没有消失，只是交给了框架的作者。
 
-> 事实出处：create-react-app 2016 年发布（React 官方博客 *Sunsetting Create React App*）。
+> 事实出处：create-react-app 2016 年发布（React 官方博客 *Sunsetting Create React App*）。“webpack 配置工程师”的用法见 CSDN、掘金上的多篇文章（如《做一个“Webpack 配置工程师”》）；“半是吐槽、半是自嘲”为解读。
 
 ---
 

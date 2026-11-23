@@ -9,7 +9,7 @@ type Props = {
   /** 幕内淡出的帧；null 表示随整幕淡出 */
   exitAt?: number | null;
   size?: 'title' | 'body' | 'note';
-  tone?: 'normal' | 'dim' | 'accent' | 'warning';
+  tone?: 'normal' | 'dim' | 'accent' | 'warning' | 'success';
   weight?: keyof typeof fontWeight;
   style?: React.CSSProperties;
 };
@@ -19,6 +19,7 @@ const toneColor = {
   dim: colors.textDim,
   accent: colors.accent,
   warning: colors.warning,
+  success: colors.success,
 } as const;
 
 /** 一段带统一入场的文字（标题 72 / 正文 40 / 注释 28） */

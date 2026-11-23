@@ -1,8 +1,9 @@
 import React from 'react';
-import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
+import { AbsoluteFill, interpolate, Sequence, useCurrentFrame, useVideoConfig } from 'remotion';
 import { Caption } from '../components/Caption';
 import { Cube } from '../components/Cube';
 import { FileIcon } from '../components/FileIcon';
+import { MilestoneCard } from '../components/MilestoneCard';
 import { Pill } from '../components/Pill';
 import { CostBeat } from '../components/CostBeat';
 import type { SceneProps } from '../components/SceneShell';
@@ -18,12 +19,24 @@ const ICON = layout.fileIcon;
 /** 左侧图标列的中心 x、首个图标中心 y、行距 */
 const COLUMN = { x: 330, y0: 380, step: 120 } as const;
 const CUBE = { x: video.width / 2, y: 520, r: 130 } as const;
-const OUTPUT = { x: 1590, y: CUBE.y, scale: 1.4 } as const;
+const OUTPUT = { x: 1590, y: CUBE.y - 70, scale: 1.4 } as const;
+/** 按需加载拆出的代码块：位于 bundle.js 下方，略小 */
+const CHUNK = { x: 1590, y: CUBE.y + 150, scale: 1 } as const;
 const KEYWORDS_TOP = 690;
 const AUTHOR_TOP = 800;
 const LABEL_TOP = layout.contentTop;
 
-// 本幕时间表（帧，相对内容起点）
+// 本幕时间表（帧）。① 起源段相对内容起点；② 汇入立方体的段落整体延后 FLOW_START 帧，
+// 其内部时间（T）相对该段落起点。
+const ORIGIN = {
+  issue: 30,
+  issueZh: 70,
+  commit: 210,
+  commitNote: 240,
+  out: 400,
+} as const;
+const FLOW_START = 420;
+
 const T = {
   iconsIn: 6,
   iconStep: 16,
@@ -32,9 +45,10 @@ const T = {
   flyStep: 24,
   flyDur: 46,
   output: 290,
-  keywords: 380,
+  chunk: 370,
+  keywords: 450,
   keywordStep: 40,
-  author: 500,
+  author: 570,
 } as const;
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
@@ -42,6 +56,48 @@ const flyStart = (i: number) => T.fly + i * T.flyStep;
 const LAST_ARRIVAL = flyStart(COPY.files.length - 1) + T.flyDur;
 
 export const Scene03Birth: React.FC<SceneProps> = ({ duration }) => {
+  const O = COPY.origin;
+  return (
+    <AbsoluteFill>
+      <SceneTitle title={scene03.title} years={scene03.yearsLabel} />
+
+      {/* ① 起源：一个关于代码分割的提议 → 首个提交 */}
+      <MilestoneCard
+        date={O.issueDate}
+        title={O.issueTitle}
+        delay={ORIGIN.issue}
+        exitAt={ORIGIN.out}
+        top={layout.contentTop + 30}
+        lines={[
+          { text: O.issueQuote, delay: ORIGIN.issue + 14, quote: true },
+          { text: O.issueQuoteZh, delay: ORIGIN.issueZh },
+        ]}
+      />
+      <MilestoneCard
+        date={O.commitDate}
+        title={O.commitTitle}
+        delay={ORIGIN.commit}
+        exitAt={ORIGIN.out}
+        top={layout.contentTop + 300}
+        lines={[{ text: O.commitNote, delay: ORIGIN.commitNote }]}
+      />
+
+      {/* ② 一切皆模块：文件汇入立方体 → bundle.js 与按需加载的代码块 */}
+      <Sequence from={FLOW_START} name="birth flow">
+        <BirthFlow />
+      </Sequence>
+
+      <CostBeat
+        at={duration - transition.costLead}
+        label={thread.costLabel}
+        text={scene03.copy.cost.text}
+        notes={scene03.copy.cost.notes}
+      />
+    </AbsoluteFill>
+  );
+};
+
+const BirthFlow: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -59,13 +115,12 @@ export const Scene03Birth: React.FC<SceneProps> = ({ duration }) => {
   const out = moveProgress(frame, fps, T.output);
   const outX = interpolate(out, [0, 1], [CUBE.x, OUTPUT.x]);
   const lineEnd = interpolate(out, [0, 1], [CUBE.x + CUBE.r, OUTPUT.x - ICON.width * 0.8]);
+  const chunkP = moveProgress(frame, fps, T.chunk);
   const outW = ICON.width * OUTPUT.scale;
   const outH = ICON.height * OUTPUT.scale;
 
   return (
     <AbsoluteFill>
-      <SceneTitle title={scene03.title} years={scene03.yearsLabel} />
-
       <Caption
         delay={T.iconsIn}
         exitAt={LAST_ARRIVAL - 10}
@@ -116,19 +171,31 @@ export const Scene03Birth: React.FC<SceneProps> = ({ duration }) => {
         );
       })}
 
-      {/* 输出连线 */}
+      {/* 输出连线：bundle.js 与按需加载的代码块 */}
       {frame >= T.output ? (
         <svg width={video.width} height={video.height} style={{ position: 'absolute', left: 0, top: 0 }}>
           <line
-            x1={CUBE.x + CUBE.r}
-            y1={CUBE.y}
+            x1={CUBE.x + CUBE.r * 0.87}
+            y1={CUBE.y - 40}
             x2={lineEnd}
-            y2={CUBE.y}
+            y2={OUTPUT.y}
             stroke={colors.accent}
             strokeWidth={3}
             strokeDasharray="10 10"
             opacity={0.7}
           />
+          {frame >= T.chunk ? (
+            <line
+              x1={CUBE.x + CUBE.r * 0.87}
+              y1={CUBE.y + 40}
+              x2={interpolate(chunkP, [0, 1], [CUBE.x + CUBE.r, CHUNK.x - ICON.width * 0.6])}
+              y2={interpolate(chunkP, [0, 1], [CUBE.y + 40, CHUNK.y])}
+              stroke={colors.secondary}
+              strokeWidth={3}
+              strokeDasharray="10 10"
+              opacity={0.8}
+            />
+          ) : null}
         </svg>
       ) : null}
 
@@ -174,6 +241,34 @@ export const Scene03Birth: React.FC<SceneProps> = ({ duration }) => {
           </div>
         </div>
       ) : null}
+      {/* 按需加载的代码块 */}
+      {frame >= T.chunk ? (
+        <div
+          style={{
+            position: 'absolute',
+            left: interpolate(chunkP, [0, 1], [CUBE.x, CHUNK.x]) - ICON.width / 2,
+            top: CHUNK.y - ICON.height / 2,
+            width: ICON.width,
+            opacity: chunkP,
+          }}
+        >
+          <FileIcon label={COPY.outputLabel} color={colors.secondary} />
+          <div
+            style={{
+              position: 'absolute',
+              top: ICON.height + space.xs,
+              left: -space.xxl,
+              right: -space.xxl,
+              textAlign: 'center',
+              fontFamily: fonts.mono,
+              fontSize: fontSize.small,
+              color: colors.textDim,
+            }}
+          >
+            {COPY.chunk}
+          </div>
+        </div>
+      ) : null}
       <Caption
         delay={T.output + 20}
         size="note"
@@ -208,12 +303,6 @@ export const Scene03Birth: React.FC<SceneProps> = ({ duration }) => {
         {COPY.authorLabel}
         <span style={{ marginLeft: space.sm, color: colors.text }}>{COPY.author}</span>
       </Caption>
-      <CostBeat
-        at={duration - transition.costLead}
-        label={thread.costLabel}
-        text={scene03.copy.cost.text}
-        notes={scene03.copy.cost.notes}
-      />
     </AbsoluteFill>
   );
 };

@@ -1,8 +1,8 @@
 # webpack 发展史 · Remotion 科普视频
 
-一条约 3.5 分钟（默认 220 秒）的科普视频，面向前端开发者。1920×1080，30fps。
+一条约 10 分钟（默认 600 秒）的科普视频，面向前端开发者。1920×1080，30fps。
 
-**进度：** 8 幕均已完成；配音与背景音乐暂未接入。
+**进度：** 10 分钟版改造中。第 1–4 幕已按新旁白完成；第 5、6、10、12 幕暂时沿用 220 秒版的实现；第 7、8、9、11、13 幕为占位。旁白稿见 `narration.md`。
 
 ## 预览与渲染
 
@@ -16,15 +16,20 @@ Studio 左侧列出所有 Composition：
 
 | id | 内容 | 默认时长 |
 | --- | --- | --- |
-| `WebpackHistory` | 主片，8 幕顺序拼接 | 220s |
-| `S01-intro` | 开场 | 15s |
-| `S02-prehistory` | 史前时代 2009–2012 | 27s |
-| `S03-birth` | 诞生 2012 | 27s |
-| `S04-rise` | 崛起 2014–2016 | 34s |
-| `S05-iteration` | 快速迭代 2017–2018 | 32s |
-| `S06-config-pain` | 配置之痛 2018–2020 | 29s |
-| `S07-challengers` | 挑战者 2020–2024 | 34s |
-| `S08-today` | 今天 2026 | 22s |
+| `WebpackHistory` | 主片，13 幕顺序拼接 | 600s |
+| `S01-intro` | 开场 | 22s |
+| `S02-prehistory` | 史前时代 2009–2012 | 60s |
+| `S03-birth` | 诞生 2012 | 52s |
+| `S04-rise` | 崛起 2014–2016 | 55s |
+| `S05-iteration` | 快速迭代 2017–2018 | 60s |
+| `S06-config-pain` | 配置之痛 2016–2019 | 42s |
+| `S07-webpack5` | webpack 5（2020.10） | 55s |
+| `S08-beyond` | 走出浏览器 2016–2021 | 60s |
+| `S09-limits` | 为什么修不好 2020 | 43s |
+| `S10-challengers` | 挑战者 2020–2024 | 60s |
+| `S11-migration` | 迁移潮 2023–2026 | 40s |
+| `S12-today` | 今天 2026 | 36s |
+| `S13-outro` | 尾声 | 15s |
 
 单幕 Composition 同样带 Timeline 与 YearCounter，并从上一幕的年份滑入，和主片中的效果一致。
 
@@ -90,7 +95,9 @@ src/
     SceneShell.tsx    每幕外壳：等时间轴滑动 → 内容入场 → 结尾淡出 12 帧；<Audio> 接入点
     Cube.tsx / FileIcon.tsx / Pill.tsx  立方体、文件图标、关键词胶囊（第 3、8 幕共用）
     CostBeat.tsx / AnswerCard.tsx  「代价」节拍与「回应」卡片
-  scenes/Scene01Intro.tsx … Scene08Today.tsx
+    MilestoneCard.tsx 里程碑卡片（日期 + 标题 + 原文引用 / 译文）
+    ScenePlaceholder.tsx  未制作幕的占位
+  scenes/Scene01Intro.tsx … Scene13Outro.tsx
 ```
 
 ## 动画约定

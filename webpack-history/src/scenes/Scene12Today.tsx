@@ -7,10 +7,10 @@ import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { enterProgress, enterStyle, exitProgress, rangeProgress, slideEasing } from '../lib/anim';
 import { bezierPoint, type Point } from '../lib/geometry';
-import { scene08 } from '../scenes';
+import { scene12 } from '../scenes';
 import { colors, fileColors, fonts, fontSize, fontWeight, layout, motion, space, video } from '../theme';
 
-const COPY = scene08.copy;
+const COPY = scene12.copy;
 
 // ───────────── 时间表（帧，相对内容起点） ─────────────
 const T = {
@@ -22,10 +22,10 @@ const T = {
   flyDur: 44,
   statement: 270,
   statementNote: 300,
-  /** 内容与时间轴一起退场（与 scenes.ts 的 chromeExitAt 一致） */
-  end: scene08.chromeExitAt,
-  endTitle: scene08.chromeExitAt + 36,
-  endSubtitle: scene08.chromeExitAt + 66,
+  /** 过渡期：片尾标题暂留在本幕，第 13 幕「尾声」完成后移走 */
+  end: 480,
+  endTitle: 516,
+  endSubtitle: 546,
 } as const;
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
@@ -42,7 +42,7 @@ const ICON_POS: readonly Point[] = [
 
 const flyStart = (i: number) => T.fly + i * T.flyStep;
 
-export const Scene08Today: React.FC<SceneProps> = () => {
+export const Scene12Today: React.FC<SceneProps> = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -62,7 +62,7 @@ export const Scene08Today: React.FC<SceneProps> = () => {
       {/* ① 立方体吸入插件 → “仍在迭代” */}
       {mainOut > 0 ? (
         <AbsoluteFill style={{ opacity: mainOut }}>
-          <SceneTitle title={scene08.title} years={scene08.yearsLabel} />
+          <SceneTitle title={scene12.title} years={scene12.yearsLabel} />
 
           {COPY.plugins.map((p, i) => {
             const t = rangeProgress(frame, flyStart(i), flyStart(i) + T.flyDur, slideEasing);

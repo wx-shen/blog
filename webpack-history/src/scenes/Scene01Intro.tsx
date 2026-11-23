@@ -10,16 +10,17 @@ import { colors, fonts, fontSize, fontWeight, layout, motion, space, video } fro
 const COPY = scene01.copy;
 
 // 本幕时间表（帧，相对内容起点）
+// 与旁白对齐：打字 →「几秒钟后……被打包成几个文件」进度条与日志 →「今天，我们来讲讲 webpack 的故事」标题
 const T = {
   terminalIn: 0,
-  typeStart: 18,
-  progressStart: 62,
-  progressEnd: 150,
-  logStart: 156,
-  logStep: 12,
-  shrink: 262,
-  title: 296,
-  subtitle: 326,
+  typeStart: 24,
+  progressStart: 96,
+  progressEnd: 230,
+  logStart: 238,
+  logStep: 14,
+  shrink: 400,
+  title: 436,
+  subtitle: 470,
 } as const;
 
 /** 终端缩小后的比例与中心位置 */
