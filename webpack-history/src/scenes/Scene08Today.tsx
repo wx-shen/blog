@@ -21,6 +21,7 @@ const T = {
   flyStep: 30,
   flyDur: 44,
   statement: 270,
+  statementNote: 300,
   /** 内容与时间轴一起退场（与 scenes.ts 的 chromeExitAt 一致） */
   end: scene08.chromeExitAt,
   endTitle: scene08.chromeExitAt + 36,
@@ -125,6 +126,21 @@ export const Scene08Today: React.FC<SceneProps> = () => {
           >
             {COPY.statement}
           </Caption>
+          {COPY.statementNote ? (
+            <Caption
+              delay={T.statementNote}
+              size="note"
+              tone="dim"
+              style={{
+                position: 'absolute',
+                top: STATEMENT_TOP + fontSize.body * 1.5 + space.sm,
+                width: '100%',
+                textAlign: 'center',
+              }}
+            >
+              {COPY.statementNote}
+            </Caption>
+          ) : null}
         </AbsoluteFill>
       ) : null}
 

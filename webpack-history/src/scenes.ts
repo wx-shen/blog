@@ -241,14 +241,26 @@ export const scene05 = {
   // v4 翻牌时（Scene05Iteration 的 T.v4）时间轴滑到 2018
   yearStops: [{ atFrame: 470, year: 2018 }],
   copy: {
-    /** 翻牌的版本号、年份与 1–2 个关键特性（待核对） */
+    /**
+     * 翻牌的版本号、年份与 1–2 个关键特性（已核对 2026-11）
+     * - v2：2.2.0 发布于 2017-01-17。未使用的导出被标记为 unused，再由压缩工具（UglifyJS）删除。
+     *   https://github.com/webpack/webpack/releases/tag/v2.2.0
+     * - v3：3.0.0 发布于 2017-06-19，Scope Hoisting 为实验特性，需手动添加 ModuleConcatenationPlugin，只对 ES 模块生效。
+     *   https://github.com/webpack/webpack/releases/tag/v3.0.0
+     * - v4：4.0.0 发布于 2018-02-25，mode 选项；无需配置文件，默认 ./src/index.js → ./dist/main.js。
+     *   https://github.com/webpack/webpack/releases/tag/v4.0.0
+     */
     versions: [
       {
         version: 'v2',
         year: '2017',
-        features: ['原生支持 ES Modules（import / export）', 'Tree Shaking：剔除未被使用的导出'],
+        features: ['原生支持 ES Modules（import / export）', 'Tree Shaking：标记未使用的导出，交给压缩工具删除'],
       },
-      { version: 'v3', year: '2017', features: ['Scope Hoisting：把模块合并进同一个作用域'] },
+      {
+        version: 'v3',
+        year: '2017',
+        features: ['Scope Hoisting（实验特性，需手动启用）：把 ES 模块合并进同一个作用域'],
+      },
       { version: 'v4', year: '2018', features: ['新增 mode 选项，按环境内置默认配置', '没有配置文件也能直接构建'] },
     ],
     /** v2 的 Tree Shaking 演示：依赖树上未被使用的导出变灰并脱落（文件名为示意） */
@@ -276,7 +288,11 @@ export const scene05 = {
     },
     /**
      * v4 演示：一份长配置折叠成一行。
-     * 待核对：这里列出的插件应当都是 webpack 4 的 production 模式默认启用的。
+     * 已核对：以下四项在 webpack 4.0.0 的 production 模式下默认启用（DefinePlugin 设 NODE_ENV、
+     * UglifyJsPlugin、ModuleConcatenationPlugin、NoEmitOnErrorsPlugin），但不是全部默认项；
+     * 4.26.0（2018-11）起默认压缩器从 UglifyJS 换成 Terser。
+     * https://github.com/webpack/webpack/releases/tag/v4.0.0
+     * https://github.com/webpack/webpack/releases/tag/v4.26.0
      */
     configFilename: 'webpack.config.js',
     configBefore: [
@@ -430,6 +446,14 @@ export const scene08 = {
       { kind: 'ts', label: 'TS', name: 'TypeScript' },
     ],
     statement: '仍在迭代，通往 v6',
+    /**
+     * 已核对：这三项列在官方「Roadmap 2026」的「Preparing for Webpack 6」中，但已在 webpack 5.x 落地
+     * （experiments.css 5.66.0 加入、5.109.0 起默认开启；experiments.typescript 5.107.0 加入）。
+     * v6 截至 2026-11 未发布，届时它们将不再是实验特性。画面不能暗示这些是“v6 才有”的功能。
+     * https://webpack.js.org/blog/2026-02-04-roadmap-2026/
+     * https://webpack.js.org/blog/2026-11-16-css-and-html-are-built-in/
+     */
+    statementNote: '原生 CSS、HTML、TypeScript 支持已在 webpack 5 中落地，到 v6 将不再是实验特性',
     /** 片尾标题（与开场主标题一致；前段用强调色） */
     endTitleAccent: 'webpack',
     endTitleRest: ' 发展史',
