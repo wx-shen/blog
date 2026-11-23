@@ -2,12 +2,13 @@ import React from 'react';
 import { AbsoluteFill, interpolate, interpolateColors, useCurrentFrame, useVideoConfig } from 'remotion';
 import { Caption } from '../components/Caption';
 import { CodeBlock } from '../components/CodeBlock';
+import { CostBeat } from '../components/CostBeat';
 import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { enterProgress, enterStyle, exitProgress, rangeProgress } from '../lib/anim';
 import { curvePath, horizontalCurve } from '../lib/geometry';
-import { scene04 } from '../scenes';
-import { alpha, colors, fileColors, fonts, fontSize, fontWeight, layout, motion, space, video } from '../theme';
+import { scene04, thread } from '../scenes';
+import { alpha, colors, fileColors, fonts, fontSize, fontWeight, layout, motion, space, transition, video } from '../theme';
 
 const COPY = scene04.copy;
 const GRAPH = COPY.graph;
@@ -220,7 +221,7 @@ const BrowserMock: React.FC<{ title: string; flash: number }> = ({ title, flash 
   );
 };
 
-export const Scene04Rise: React.FC<SceneProps> = () => {
+export const Scene04Rise: React.FC<SceneProps> = ({ duration }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -328,6 +329,12 @@ export const Scene04Rise: React.FC<SceneProps> = () => {
           </Caption>
         </>
       ) : null}
+      <CostBeat
+        at={duration - transition.costLead}
+        label={thread.costLabel}
+        text={scene04.copy.cost.text}
+        notes={scene04.copy.cost.notes}
+      />
     </AbsoluteFill>
   );
 };

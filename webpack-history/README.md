@@ -1,6 +1,6 @@
 # webpack 发展史 · Remotion 科普视频
 
-一条约 3.5 分钟（默认 210 秒）的科普视频，面向前端开发者。1920×1080，30fps。
+一条约 3.5 分钟（默认 220 秒）的科普视频，面向前端开发者。1920×1080，30fps。
 
 **进度：** 8 幕均已完成；配音与背景音乐暂未接入。
 
@@ -16,15 +16,15 @@ Studio 左侧列出所有 Composition：
 
 | id | 内容 | 默认时长 |
 | --- | --- | --- |
-| `WebpackHistory` | 主片，8 幕顺序拼接 | 210s |
+| `WebpackHistory` | 主片，8 幕顺序拼接 | 220s |
 | `S01-intro` | 开场 | 15s |
-| `S02-prehistory` | 史前时代 2009–2012 | 30s |
-| `S03-birth` | 诞生 2012 | 25s |
-| `S04-rise` | 崛起 2014–2016 | 30s |
-| `S05-iteration` | 快速迭代 2017–2018 | 30s |
-| `S06-config-pain` | 配置之痛 2018–2020 | 25s |
-| `S07-challengers` | 挑战者 2020–2024 | 30s |
-| `S08-today` | 今天 2026 | 25s |
+| `S02-prehistory` | 史前时代 2009–2012 | 27s |
+| `S03-birth` | 诞生 2012 | 27s |
+| `S04-rise` | 崛起 2014–2016 | 34s |
+| `S05-iteration` | 快速迭代 2017–2018 | 32s |
+| `S06-config-pain` | 配置之痛 2018–2020 | 29s |
+| `S07-challengers` | 挑战者 2020–2024 | 34s |
+| `S08-today` | 今天 2026 | 22s |
 
 单幕 Composition 同样带 Timeline 与 YearCounter，并从上一幕的年份滑入，和主片中的效果一致。
 
@@ -34,6 +34,20 @@ npm run render:scene S02-prehistory out/s02.mp4 # 单独渲染某一幕
 npm run stills WebpackHistory out/stills 120 900 # 导出指定帧截图
 npm run typecheck
 ```
+
+## 「代价」主线
+
+第 3–7 幕结尾各有一个「代价」节拍（`CostBeat`：压暗画面 + 警示色卡片），说明这一阶段的方案带来了什么新问题；后面的版本或工具用强调色的「回应」标记接住它：
+
+| 幕 | 代价 | 回应 |
+| --- | --- | --- |
+| 3 诞生 | 每个模块都包进函数，多一层运行时 | 第 5 幕 v3 Scope Hoisting（回应卡片） |
+| 4 崛起 | 依赖图要先完整建好，开发服务器才能启动 | 第 6 幕持久化缓存（缓解）、第 7 幕 Vite |
+| 5 快速迭代 | 默认配置只覆盖简单项目 | 第 6 幕「配置之痛」 |
+| 6 配置之痛 | 缓存改不了「先全量打包」「JS 单线程」 | 第 7 幕各工具「换掉了哪一层」 |
+| 7 挑战者 | 没有银弹：新工具也有取舍 | 第 8 幕「仍在迭代」 |
+
+文案在 `scenes.ts` 各幕的 `copy.cost`；节拍在幕结束前 `transition.costLead`（150 帧）出现。
 
 ## 改文案、改数据
 
@@ -75,6 +89,7 @@ src/
     Chrome.tsx        Timeline + YearCounter 叠加层
     SceneShell.tsx    每幕外壳：等时间轴滑动 → 内容入场 → 结尾淡出 12 帧；<Audio> 接入点
     Cube.tsx / FileIcon.tsx / Pill.tsx  立方体、文件图标、关键词胶囊（第 3、8 幕共用）
+    CostBeat.tsx / AnswerCard.tsx  「代价」节拍与「回应」卡片
   scenes/Scene01Intro.tsx … Scene08Today.tsx
 ```
 

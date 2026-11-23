@@ -188,6 +188,8 @@ export const transition = {
   contentDelay: 24,
   /** 开场结尾 Timeline 从底部升起所用帧数 */
   timelineRise: 36,
+  /** 「代价」节拍在幕结束前多少帧出现（含结尾淡出） */
+  costLead: 150,
 } as const;
 
 /** Timeline 的年份范围 */

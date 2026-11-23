@@ -34,6 +34,20 @@ export type SceneConfig = {
   copy: Record<string, unknown>;
 };
 
+/**
+ * 「代价」主线：webpack 每解决一个问题，也带来新的代价；后续版本或新工具回应它。
+ * 第 3–7 幕结尾各有一个「代价」节拍（文字为解读性表述，事实部分已核对）。
+ */
+export type CostCopy = {
+  text: string;
+  notes: readonly string[];
+};
+
+export const thread = {
+  costLabel: '代价',
+  answerLabel: '回应',
+} as const;
+
 export type ToolCopy = {
   tool: ToolId;
   name: string;
@@ -86,7 +100,7 @@ export const scene02 = {
   years: [2009, 2012],
   yearsLabel: '2009 – 2012',
   focusYear: 2009,
-  durationSeconds: 30,
+  durationSeconds: 27,
   chrome: 'always',
   audio: 'audio/scene02-prehistory.mp3',
   narration: NARRATION_TODO,
@@ -137,11 +151,16 @@ export const scene03 = {
   years: [2012, 2012],
   yearsLabel: '2012',
   focusYear: 2012,
-  durationSeconds: 25,
+  durationSeconds: 27,
   chrome: 'always',
   audio: 'audio/scene03-birth.mp3',
   narration: NARRATION_TODO,
   copy: {
+    /** 幕末「代价」：由第 5 幕 v3 的 Scope Hoisting 回应 */
+    cost: {
+      text: '每个模块都被包进一个函数，多出一层模块运行时',
+      notes: [],
+    },
     /** 左侧四类文件：图标上的短标签 + 旁边的文件名（文件名为示意） */
     files: [
       { kind: 'js', label: 'JS', name: 'index.js' },
@@ -170,11 +189,16 @@ export const scene04 = {
   years: [2014, 2016],
   yearsLabel: '2014 – 2016',
   focusYear: 2014,
-  durationSeconds: 30,
+  durationSeconds: 34,
   chrome: 'always',
   audio: 'audio/scene04-rise.mp3',
   narration: NARRATION_TODO,
   copy: {
+    /** 幕末「代价」：第 6 幕的持久化缓存只能缓解，第 7 幕的 Vite 换掉了这一层 */
+    cost: {
+      text: '依赖图要先完整建好，开发服务器才能启动',
+      notes: ['项目越大，启动越慢'],
+    },
     /** 依赖图（文件名为示意）。layer 0 为入口，连线从父节点指向子节点 */
     graph: {
       nodes: [
@@ -239,13 +263,23 @@ export const scene05 = {
   years: [2017, 2018],
   yearsLabel: '2017 – 2018',
   focusYear: 2017,
-  durationSeconds: 30,
+  durationSeconds: 32,
   chrome: 'always',
   audio: 'audio/scene05-iteration.mp3',
   narration: NARRATION_TODO,
   // v4 翻牌时（Scene05Iteration 的 T.v4）时间轴滑到 2018
-  yearStops: [{ atFrame: 470, year: 2018 }],
+  yearStops: [{ atFrame: 510, year: 2018 }],
   copy: {
+    /** 幕末「代价」：引出第 6 幕「配置之痛」 */
+    cost: {
+      text: '默认配置只覆盖简单项目，真实项目的配置照样膨胀',
+      notes: [],
+    },
+    /** v3 阶段右侧的「回应」卡片：回应第 3 幕的代价 */
+    v3Answer: {
+      title: '第 3 幕的代价',
+      text: '把多个 ES 模块合并进同一个作用域，省掉一层层函数包装',
+    },
     /**
      * 翻牌的版本号、年份与 1–2 个关键特性（已核对 2026-11）
      * - v2：2.2.0 发布于 2017-01-17。未使用的导出被标记为 unused，再由压缩工具（UglifyJS）删除。
@@ -326,13 +360,22 @@ export const scene06 = {
   years: [2018, 2020],
   yearsLabel: '2018 – 2020',
   focusYear: 2018,
-  durationSeconds: 25,
+  durationSeconds: 29,
   chrome: 'always',
   audio: 'audio/scene06-config-pain.mp3',
   narration: NARRATION_TODO,
   // 配置滚动结束、切到 v5 时（Scene06ConfigPain 的 T.v5）时间轴滑到 2020
   yearStops: [{ atFrame: 300, year: 2020 }],
   copy: {
+    /**
+     * 幕末「代价」：交给第 7 幕的新工具。
+     * 已核对：webpack 官方 Roadmap 2026 称正在设计核心内置的多线程 API，目前并行只到 loader 层（thread-loader）。
+     * https://webpack.js.org/blog/2026-02-04-roadmap-2026/
+     */
+    cost: {
+      text: '缓存只能加速重复构建，改不了底层设计',
+      notes: ['开发时要先全量打包', '构建主要跑在 JavaScript 单线程上'],
+    },
     configFilename: 'webpack.config.js',
     /** 持续滚动的配置内容（示意），循环拼接成很长的文件 */
     configTemplate: [
@@ -377,6 +420,8 @@ export const scene06 = {
     painCaption: '配置越写越长，越来越难维护',
     v5Heading: 'webpack 5',
     cache: {
+      /** 标题旁的「回应」标记：缓解第 4 幕的代价 */
+      answer: '缓解第 4 幕的代价',
       title: '持久化缓存',
       firstLabel: '第一次构建',
       secondLabel: '第二次构建（命中缓存）',
@@ -400,7 +445,7 @@ export const scene07 = {
   years: [2020, 2024],
   yearsLabel: '2020 – 2024',
   focusYear: 2020,
-  durationSeconds: 30,
+  durationSeconds: 34,
   chrome: 'always',
   audio: 'audio/scene07-challengers.mp3',
   narration: NARRATION_TODO,
@@ -416,6 +461,19 @@ export const scene07 = {
   ],
   copy: {
     /**
+     * 幕末「代价」：没有银弹。
+     * 已核对：Vite 8（2026-03）用 Rolldown 统一取代开发时的 esbuild 与生产构建的 Rollup；
+     * Rspack 官方兼容表列出了不兼容的插件。
+     * https://github.com/vitejs/vite/blob/main/docs/blog/announcing-vite8.md
+     */
+    cost: {
+      text: '没有银弹：新工具也带着新的取舍',
+      notes: [
+        'Vite 早期开发用 esbuild、生产用 Rollup，直到 Vite 8（2026）才统一为 Rolldown',
+        'Rspack 兼容的是绝大多数而非全部 webpack 插件',
+      ],
+    },
+    /**
      * 柱状图之后依次登场的四个工具、各自的一行定位说明，
      * 以及驱动时间轴推进的首次公开年份（不显示在画面上）。已核对 2026-11：
      * - esbuild：Evan Wallace 用 Go 编写，2020-01 首次发布；解析与代码生成可完全并行。
@@ -430,10 +488,11 @@ export const scene07 = {
      *   https://github.com/web-infra-dev/rspack/blob/main/website/docs/en/blog/announcing-0-1.mdx
      */
     tools: [
-      { tool: 'esbuild', name: 'esbuild', year: 2020, description: '用 Go 编写，多核并行的打包与转译工具' },
-      { tool: 'vite', name: 'Vite', year: 2020, description: '开发时基于浏览器原生 ES 模块按需编译' },
-      { tool: 'turbopack', name: 'Turbopack', year: 2022, description: '用 Rust 编写，基于增量计算的打包工具' },
-      { tool: 'rspack', name: 'Rspack', year: 2023, description: '用 Rust 编写，兼容绝大多数 webpack 配置与插件' },
+      // 说明按「各自换掉了 webpack 的哪一层」来写（解读性表述，事实部分见上方出处）
+      { tool: 'esbuild', name: 'esbuild', year: 2020, description: '换掉「用 JavaScript 实现」：Go 编写，多核并行' },
+      { tool: 'vite', name: 'Vite', year: 2020, description: '换掉「开发时先打包」：按需编译原生 ES 模块' },
+      { tool: 'turbopack', name: 'Turbopack', year: 2022, description: '换掉「用 JavaScript 实现」：Rust 编写，增量计算' },
+      { tool: 'rspack', name: 'Rspack', year: 2023, description: '保留接口、换掉实现：Rust 内核，兼容绝大多数 webpack 配置与插件' },
     ],
   },
 } as const satisfies SceneConfig;
@@ -447,7 +506,7 @@ export const scene08 = {
   years: [2026, 2026],
   yearsLabel: '2026',
   focusYear: 2026,
-  durationSeconds: 25,
+  durationSeconds: 22,
   chrome: 'always',
   audio: 'audio/scene08-today.mp3',
   narration: NARRATION_TODO,

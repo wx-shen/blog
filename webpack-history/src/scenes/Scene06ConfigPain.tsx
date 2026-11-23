@@ -2,11 +2,13 @@ import React from 'react';
 import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
 import { Caption } from '../components/Caption';
 import { CodeBlock } from '../components/CodeBlock';
+import { CostBeat } from '../components/CostBeat';
+import { Pill } from '../components/Pill';
 import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { enterProgress, enterStyle, exitProgress, rangeProgress } from '../lib/anim';
-import { scene06 } from '../scenes';
-import { alpha, colors, fonts, fontSize, fontWeight, layout, lineHeight, space, video } from '../theme';
+import { scene06, thread } from '../scenes';
+import { alpha, colors, fonts, fontSize, fontWeight, layout, lineHeight, space, transition, video } from '../theme';
 
 const COPY = scene06.copy;
 const FED = COPY.federation;
@@ -120,7 +122,8 @@ const BuildBar: React.FC<{ label: string; labelAt: number; bar: readonly [number
   );
 };
 
-const Federation: React.FC = () => {
+/** until：在此帧之后不再开始新一轮流动（代价节拍前停下，控制同屏运动元素） */
+const Federation: React.FC<{ until: number }> = ({ until }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const edgeP = rangeProgress(frame, T.edges[0], T.edges[1]);
@@ -150,6 +153,8 @@ const Federation: React.FC = () => {
       {EDGES.map(([a, b], k) => {
         const local = frame - T.flow - k * T.flowOffset;
         if (local < 0) return null;
+        const cycleStart = frame - (local % T.flowPeriod);
+        if (cycleStart + T.flowTravel > until) return null;
         const raw = (local % T.flowPeriod) / T.flowTravel;
         if (raw > 1) return null;
         // 只在两个应用方块之间的连线段上流动，不压住方块
@@ -213,7 +218,7 @@ const Federation: React.FC = () => {
   );
 };
 
-export const Scene06ConfigPain: React.FC<SceneProps> = () => {
+export const Scene06ConfigPain: React.FC<SceneProps> = ({ duration }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -292,6 +297,9 @@ export const Scene06ConfigPain: React.FC<SceneProps> = () => {
           >
             {COPY.cache.title}
           </Caption>
+          <div style={{ position: 'absolute', left: CACHE.left + 220, top: COL_TOP + 2 }}>
+            <Pill text={`${thread.answerLabel} · ${COPY.cache.answer}`} delay={T.cacheTitle + 20} size="note" />
+          </div>
           <BuildBar label={COPY.cache.firstLabel} labelAt={T.firstLabel} bar={T.firstBar} top={COL_TOP + 110} />
           <BuildBar label={COPY.cache.secondLabel} labelAt={T.secondLabel} bar={T.secondBar} top={COL_TOP + 250} />
 
@@ -305,9 +313,15 @@ export const Scene06ConfigPain: React.FC<SceneProps> = () => {
           >
             {FED.title}
           </Caption>
-          <Federation />
+          <Federation until={duration - transition.costLead} />
         </>
       ) : null}
+      <CostBeat
+        at={duration - transition.costLead}
+        label={thread.costLabel}
+        text={scene06.copy.cost.text}
+        notes={scene06.copy.cost.notes}
+      />
     </AbsoluteFill>
   );
 };

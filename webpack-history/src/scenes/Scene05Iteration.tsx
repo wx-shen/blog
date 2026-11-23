@@ -2,12 +2,14 @@ import React from 'react';
 import { AbsoluteFill, interpolate, interpolateColors, useCurrentFrame, useVideoConfig } from 'remotion';
 import { Caption } from '../components/Caption';
 import { CodeBlock } from '../components/CodeBlock';
+import { AnswerCard } from '../components/AnswerCard';
+import { CostBeat } from '../components/CostBeat';
 import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { enterExitStyle, enterProgress, enterStyle, exitProgress, rangeProgress, slideEasing } from '../lib/anim';
 import { curvePath, verticalCurve, type Point } from '../lib/geometry';
-import { scene05 } from '../scenes';
-import { alpha, colors, fonts, fontSize, fontWeight, layout, lineHeight, space, video } from '../theme';
+import { scene05, thread } from '../scenes';
+import { alpha, colors, fonts, fontSize, fontWeight, layout, lineHeight, space, transition, video } from '../theme';
 
 const COPY = scene05.copy;
 const TREE = COPY.treeShaking;
@@ -20,6 +22,8 @@ const T = {
   flip: 20,
   featureDelay: 30,
   featureStep: 16,
+  /** v3 阶段的「回应」卡片 */
+  v3Answer: 390,
   // v2：Tree Shaking
   treeIn: 110,
   usedHighlight: 170,
@@ -322,12 +326,28 @@ const ConfigFold: React.FC = () => {
   );
 };
 
-export const Scene05Iteration: React.FC<SceneProps> = () => (
+export const Scene05Iteration: React.FC<SceneProps> = ({ duration }) => (
   <AbsoluteFill>
     <SceneTitle title={scene05.title} years={scene05.yearsLabel} />
     <VersionCard />
     <Features />
     <TreeShaking />
     <ConfigFold />
+    {/* v3 阶段右侧：回应第 3 幕的代价 */}
+    <AnswerCard
+      label={thread.answerLabel}
+      title={COPY.v3Answer.title}
+      text={COPY.v3Answer.text}
+      delay={T.v3Answer}
+      exitAt={T.versions[2] - 12}
+      width={DEMO.right - DEMO.left}
+      style={{ position: 'absolute', left: DEMO.left, top: CARD.top + 40 }}
+    />
+    <CostBeat
+      at={duration - transition.costLead}
+      label={thread.costLabel}
+      text={scene05.copy.cost.text}
+      notes={scene05.copy.cost.notes}
+    />
   </AbsoluteFill>
 );

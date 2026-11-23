@@ -4,12 +4,13 @@ import { Caption } from '../components/Caption';
 import { Cube } from '../components/Cube';
 import { FileIcon } from '../components/FileIcon';
 import { Pill } from '../components/Pill';
+import { CostBeat } from '../components/CostBeat';
 import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { enterProgress, moveProgress, rangeProgress, slideEasing } from '../lib/anim';
 import { bezierPoint, type Point } from '../lib/geometry';
-import { scene03 } from '../scenes';
-import { colors, fileColors, fonts, fontSize, fontWeight, layout, motion, space, video } from '../theme';
+import { scene03, thread } from '../scenes';
+import { colors, fileColors, fonts, fontSize, fontWeight, layout, motion, space, transition, video } from '../theme';
 
 const COPY = scene03.copy;
 
@@ -40,7 +41,7 @@ const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
 const flyStart = (i: number) => T.fly + i * T.flyStep;
 const LAST_ARRIVAL = flyStart(COPY.files.length - 1) + T.flyDur;
 
-export const Scene03Birth: React.FC<SceneProps> = () => {
+export const Scene03Birth: React.FC<SceneProps> = ({ duration }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -207,6 +208,12 @@ export const Scene03Birth: React.FC<SceneProps> = () => {
         {COPY.authorLabel}
         <span style={{ marginLeft: space.sm, color: colors.text }}>{COPY.author}</span>
       </Caption>
+      <CostBeat
+        at={duration - transition.costLead}
+        label={thread.costLabel}
+        text={scene03.copy.cost.text}
+        notes={scene03.copy.cost.notes}
+      />
     </AbsoluteFill>
   );
 };

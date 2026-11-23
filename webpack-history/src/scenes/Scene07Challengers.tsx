@@ -1,12 +1,13 @@
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from 'remotion';
 import { BarChart } from '../components/BarChart';
+import { CostBeat } from '../components/CostBeat';
 import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { ToolBadge } from '../components/ToolBadge';
 import { enterExitStyle, exitProgress } from '../lib/anim';
 import { benchmark } from '../data/benchmark';
-import { scene07 } from '../scenes';
+import { scene07, thread } from '../scenes';
 import { colors, fonts, fontSize, layout, space, toolColors, transition, video } from '../theme';
 
 const COPY = scene07.copy;
@@ -36,7 +37,7 @@ const BADGE_WIDTH = (CONTENT_WIDTH - BADGE_GAP) / 2;
 /** 数据来源文字：画面右下角（正文区底边，Timeline 之上） */
 const SOURCE_TOP = layout.contentBottom - fontSize.small * 1.5;
 
-export const Scene07Challengers: React.FC<SceneProps> = () => {
+export const Scene07Challengers: React.FC<SceneProps> = ({ duration }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const chartOut = exitProgress(frame, T.chartOut);
@@ -107,6 +108,12 @@ export const Scene07Challengers: React.FC<SceneProps> = () => {
           ))}
         </div>
       ) : null}
+      <CostBeat
+        at={duration - transition.costLead}
+        label={thread.costLabel}
+        text={scene07.copy.cost.text}
+        notes={scene07.copy.cost.notes}
+      />
     </AbsoluteFill>
   );
 };
