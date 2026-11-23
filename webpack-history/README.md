@@ -2,7 +2,7 @@
 
 一条约 10 分钟（默认 600 秒）的科普视频，面向前端开发者。1920×1080，30fps。
 
-**进度：** 13 幕全部完成（10 分钟版）。配音与背景音乐暂未接入；第 10 幕柱状图仍为占位数据。旁白稿见 `narration.md`。
+**进度：** 13 幕全部完成（10 分钟版）。配音与背景音乐暂未接入；第 10 幕柱状图数据来自 rstackjs/build-tools-performance（2026-11-18）。旁白稿见 `narration.md`。
 
 ## 预览与渲染
 
@@ -59,7 +59,7 @@ npm run typecheck
 ## 改文案、改数据
 
 - **所有文案**（标题、年份、说明、终端输出、代码里的文件名……）都在 `src/scenes.ts`，组件里不写文字。标记「待核对」的是分镜以外由制作时补充的措辞。
-- **第 7 幕柱状图**的数据在 `src/data/benchmark.ts`（当前为占位数据），`source` 字段显示在画面右下角。
+- **第 10 幕柱状图**的数据在 `src/data/benchmark.ts`（rstackjs/build-tools-performance 的 ui-components 用例，生产构建无缓存，2026-11-18），`source` 字段显示在画面右下角。`benchmark/` 下另有一套本机实测脚本（three.js ×10），可用于复核。
 - **幕内年份**：`scenes.ts` 里的 `yearStops` 让时间轴在一幕中途滑到新年份（第 5 幕 v4 → 2018，第 6 幕 v5 → 2020，第 7 幕随工具登场 → 2022 → 2023 → 2024）；`atFrame` 与对应场景文件时间表中的帧一致。
 - **视觉参数**（颜色、工具配色、字体、字号、间距、布局、缓动、转场帧数）都在 `src/theme.ts`。
 
@@ -75,7 +75,7 @@ npm run typecheck
 src/
   theme.ts            唯一的视觉参数来源
   scenes.ts           每一幕的配置与全部文案
-  data/benchmark.ts   第 7 幕柱状图数据（占位）
+  data/benchmark.ts   第 10 幕柱状图数据
   Root.tsx            注册主 Composition 与 8 个单幕 Composition，calculateMetadata
   Video.tsx           主片与单幕的组装
   sceneComponents.ts  幕 id → 组件

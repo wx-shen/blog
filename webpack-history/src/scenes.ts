@@ -7,7 +7,7 @@ import type { ToolId } from './theme';
  * - durationSeconds：没有音频时使用的默认时长
  * - audio：相对 public/ 的路径；文件存在时，该幕时长 = 音频时长 + 0.4 秒，并在幕起点播放
  * - focusYear：Timeline / YearCounter 在这一幕停留的年份
- * - narration：旁白文本占位
+ * - narration：旁白文本（与 narration.md 一致）
  * - copy：该幕画面上出现的全部文字
  *
  * 标记「待核对」的条目是制作时补充的措辞，请重点核对。
