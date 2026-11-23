@@ -69,6 +69,9 @@ export const toolColors = {
   vite: '#B48CF5',
   turbopack: '#F07F8F',
   rspack: '#4FD1C5',
+  cra: '#E879A6',
+  vuecli: '#6FCF97',
+  nextjs: '#C9CED6',
 } as const;
 
 export type ToolId = keyof typeof toolColors;

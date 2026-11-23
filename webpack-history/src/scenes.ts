@@ -102,6 +102,16 @@ export const scene02 = {
   durationSeconds: 60,
   chrome: 'always',
   audio: 'audio/scene02-prehistory.mp3',
+  /**
+   * 时间轴随工具登场推进（已核对 2026-11，按首个发布版本）：
+   * RequireJS 0.8.0 标签 2010-02-18（仓库首个提交 2009-09-27）；Browserify npm 0.0.1 2011-02-03；
+   * Grunt npm 0.1.0 2012-01-12。某个工具的 year 与 stop 的 year 相同时，徽章在滑动结束后登场。
+   */
+  yearStops: [
+    { atFrame: 766, year: 2010 },
+    { atFrame: 1006, year: 2011 },
+    { atFrame: 1246, year: 2012 },
+  ],
   narration: "在没有打包工具的年代，一个页面就是一串 script 标签。脚本按顺序加载，依赖关系全靠人工维护；所有变量都挂在全局，一不小心就互相覆盖；文件越多，请求也越多。\n\n2009 年，Node.js 问世，服务端 JavaScript 用上了 CommonJS 规范：一个文件就是一个模块，用 require 引入。可是，浏览器并不认识 require。\n\n社区开始各自寻找出路。RequireJS 推行 AMD 规范，让浏览器异步加载模块；Browserify 换了个思路，把 Node 风格的模块打包成一个文件，直接在浏览器里运行；Grunt 则把合并、压缩这些重复劳动，交给了任务脚本。\n\n加载、打包、构建，各管一段。还没有人把这些问题放在一起解决。",
   copy: {
     codeFilename: 'index.html',
@@ -135,6 +145,9 @@ export const scene02 = {
       {
         tool: 'requirejs',
         name: 'RequireJS',
+        year: 2010,
+        /** 收尾时标在徽章下的分工 */
+        category: '加载',
         description: '用 AMD 规范在浏览器中异步加载模块',
         // 演示：AMD 的 define 写法（示意代码）
         demo: {
@@ -145,6 +158,9 @@ export const scene02 = {
       {
         tool: 'browserify',
         name: 'Browserify',
+        year: 2011,
+        /** 收尾时标在徽章下的分工 */
+        category: '打包',
         description: '让浏览器也能使用 Node 风格的 require()',
         // 演示：README 中的标准用法 browserify main.js -o bundle.js
         demo: {
@@ -155,6 +171,9 @@ export const scene02 = {
       {
         tool: 'grunt',
         name: 'Grunt',
+        year: 2012,
+        /** 收尾时标在徽章下的分工 */
+        category: '构建',
         description: '用任务脚本自动完成合并、压缩等步骤',
         // 演示：concat + uglify 两个任务（示意配置）
         demo: {
@@ -272,12 +291,25 @@ export const scene04 = {
       howtoQuoteZh: '“这里包含了我们在 Instagram 用到的大部分做法。”',
     },
     /** loader 链演示：css-loader 先把 CSS 转成模块，style-loader 再把它注入页面（文件名为示意） */
+    /**
+     * loader 链演示，使用 webpack 1 时代的写法（module.loaders + 用 ! 串联）。
+     * 已核对：webpack-howto 中的原文 { test: /\.css$/, loader: 'style-loader!css-loader' }，注释 "use ! to chain loaders"。
+     * https://github.com/petehunt/webpack-howto
+     */
     loader: {
       label: 'loader',
       codeFilename: 'app.js',
       code: ["require('./main.css');"],
+      configFilename: 'webpack.config.js',
+      config: [
+        'module: {',
+        '  loaders: [',
+        "    { test: /\\.css$/, loader: 'style-loader!css-loader' },",
+        '  ],',
+        '},',
+      ],
       chain: ['main.css', 'css-loader', 'style-loader', '<style> 注入页面'],
-      caption: 'loader 可以串成一条链：css-loader 先把 CSS 转成模块，style-loader 再把它注入页面',
+      caption: '用 ! 串成一条链，从右往左执行：css-loader 先把 CSS 转成模块，style-loader 再把它注入页面',
     },
     /**
      * plugin 演示：构建流程中的几个钩子（compiler.hooks.compile / make、compilation.hooks.optimize、
@@ -365,8 +397,8 @@ export const scene05 = {
   chrome: 'always',
   audio: 'audio/scene05-iteration.mp3',
   narration: "2017 年 1 月，webpack 2 发布，原生支持 ES 模块的 import 和 export。ES 模块的依赖关系在编译时就能确定，webpack 可以标记出没被用到的导出，再交给压缩工具删掉。这就是 Tree Shaking。\n\n半年后，webpack 3 带来了实验性的 Scope Hoisting：把多个 ES 模块合并进同一个作用域，正好回应了“每个模块都要包一层函数”的代价。\n\n2018 年 2 月，webpack 4 发布。新增的 mode 选项按环境内置了默认配置，没有配置文件也能直接构建；SplitChunksPlugin 取代了难以配置的 CommonsChunkPlugin；package.json 里的 sideEffects 字段，让 Tree Shaking 能删得更多。\n\n可是，默认配置只覆盖了简单项目。真实项目里，配置照样越写越长。",
-  // v4 翻牌时（Scene05Iteration 的 T.v4）时间轴滑到 2018
-  yearStops: [{ atFrame: 510, year: 2018 }],
+  // v4 翻牌时（Scene05Iteration 的 T.versions[2]）时间轴滑到 2018
+  yearStops: [{ atFrame: 900, year: 2018 }],
   copy: {
     /** 幕末「代价」：引出第 6 幕「配置之痛」 */
     cost: {
@@ -446,6 +478,22 @@ export const scene05 = {
       '};',
     ],
     modeLine: "mode: 'production'",
+    /**
+     * v4 的另外两项（已核对：v4.0.0 release notes —— CommonsChunkPlugin 移除，改用 optimization.splitChunks；
+     * 支持 package.json 的 sideEffects: false）。代码为示意写法。
+     */
+    splitChunks: {
+      beforeLabel: 'webpack 3',
+      before: ["new webpack.optimize.CommonsChunkPlugin({ name: 'vendor' })"],
+      afterLabel: 'webpack 4',
+      after: ['optimization: {', "  splitChunks: { chunks: 'all' },", '}'],
+      caption: 'SplitChunksPlugin 取代 CommonsChunkPlugin，公共代码按默认规则自动拆分',
+    },
+    sideEffects: {
+      filename: 'package.json',
+      lines: ['{', '  "name": "my-lib",', '  "sideEffects": false', '}'],
+      caption: '声明代码没有副作用，没被用到的模块可以整个跳过',
+    },
   },
 } as const satisfies SceneConfig;
 
@@ -462,17 +510,11 @@ export const scene06 = {
   chrome: 'always',
   audio: 'audio/scene06-config-pain.mp3',
   narration: "那几年，一份真实项目的 webpack 配置，往往要处理多个入口、各种 loader、压缩、分包、环境变量，开发和生产还要分开维护。配置复杂到仿佛需要专人维护，“webpack 配置工程师”，成了前端圈半是吐槽、半是自嘲的说法。\n\n解决的办法，是把配置藏起来。2016 年的 create-react-app，还有 Vue CLI、Next.js，都在 webpack 之上做了一层封装，让大多数开发者不必再直接面对配置。\n\n问题并没有消失，只是交给了框架的作者。",
-  // 配置滚动结束、切到 v5 时（Scene06ConfigPain 的 T.v5）时间轴滑到 2020
-  yearStops: [{ atFrame: 300, year: 2020 }],
   copy: {
-    /**
-     * 幕末「代价」：交给第 7 幕的新工具。
-     * 已核对：webpack 官方 Roadmap 2026 称正在设计核心内置的多线程 API，目前并行只到 loader 层（thread-loader）。
-     * https://webpack.js.org/blog/2026-02-04-roadmap-2026/
-     */
+    /** 幕末「代价」：交给框架作者 */
     cost: {
-      text: '缓存只能加速重复构建，改不了底层设计',
-      notes: ['开发时要先全量打包', '构建主要跑在 JavaScript 单线程上'],
+      text: '配置没有消失，只是交给了框架的作者',
+      notes: [],
     },
     configFilename: 'webpack.config.js',
     /** 持续滚动的配置内容（示意），循环拼接成很长的文件 */
@@ -514,9 +556,62 @@ export const scene06 = {
       '});',
       '',
     ],
-    /** 滚动时右侧的一句（待核对：分镜外补充，可删为空字符串） */
-    painCaption: '配置越写越长，越来越难维护',
-    v5Heading: 'webpack 5',
+    /**
+     * 社区说法（见 CSDN、掘金《做一个“Webpack 配置工程师”》等文章）；「半是吐槽、半是自嘲」为解读。
+     */
+    meme: '「webpack 配置工程师」',
+    memeNote: '配置复杂到仿佛需要专人维护 —— 半是吐槽，半是自嘲',
+    /**
+     * 上层封装：把 webpack 配置藏进框架（已核对：create-react-app 2016 年发布）。
+     * https://react.dev/blog/2025/02/14/sunsetting-create-react-app
+     */
+    wrappers: {
+      layerBottom: 'webpack 配置',
+      frameworks: [
+        { tool: 'cra', name: 'create-react-app' },
+        { tool: 'vuecli', name: 'Vue CLI' },
+        { tool: 'nextjs', name: 'Next.js' },
+      ],
+      layerTop: '开发者',
+      caption: '配置被封装进框架，大多数开发者不必再直接面对它',
+    },
+  },
+} as const satisfies SceneConfig;
+
+// ─────────────────────────────────────────────────────────────
+// 7. webpack 5
+// ─────────────────────────────────────────────────────────────
+export const scene07 = {
+  id: 'scene07-webpack5',
+  title: 'webpack 5',
+  years: [2020, 2020],
+  yearsLabel: '2020.10',
+  focusYear: 2020,
+  durationSeconds: 55,
+  chrome: 'always',
+  audio: 'audio/scene07-webpack5.mp3',
+  narration: "2020 年 10 月 10 日，webpack 5 发布。\n\n持久化缓存可以把构建结果写到磁盘，第二次构建时，没有改动的模块不必重新编译。模块联邦让多个独立部署的应用在运行时共享代码，成了微前端的重要方案。资源模块取代了 file-loader、url-loader 和 raw-loader。生产模式默认使用稳定的模块 ID，长期缓存更加可靠。\n\n它也做了一次大胆的取舍：不再自动为 Node.js 的核心模块注入浏览器 polyfill。产物更干净了，但这是一次破坏性的升级，不少项目需要手动补上。\n\n然而，缓存只能加速重复的构建，改变不了底层的设计。",
+  copy: {
+    /**
+     * 幕末「代价」：交给第 9 幕「为什么修不好」。
+     * 已核对：webpack 官方 Roadmap 2026 称正在设计核心内置的多线程 API，目前并行只到 loader 层（thread-loader）。
+     * https://webpack.js.org/blog/2026-02-04-roadmap-2026/
+     */
+    cost: {
+      text: '缓存只能加速重复构建，改不了底层设计',
+      notes: ['开发时要先全量打包', '构建主要跑在 JavaScript 单线程上'],
+    },
+    /** 已核对：webpack 5 发布博客 2020-10-10 */
+    releaseDate: '2020-10-10',
+    releaseTitle: 'webpack 5 发布',
+    /** 左侧特性列表：name + 一行说明；右侧依次演示（见 Scene07Webpack5） */
+    features: [
+      { name: '持久化缓存', desc: "cache: { type: 'filesystem' }" },
+      { name: '模块联邦', desc: 'Module Federation · 运行时共享代码' },
+      { name: '资源模块', desc: 'Asset Modules · 取代三个 loader' },
+      { name: '稳定的模块 ID', desc: 'deterministic moduleIds / chunkIds' },
+      { name: '移除 Node polyfill', desc: '破坏性变更' },
+    ],
     cache: {
       /** 标题旁的「回应」标记：缓解第 4 幕的代价 */
       answer: '缓解第 4 幕的代价',
@@ -531,23 +626,44 @@ export const scene06 = {
       /** 在应用之间流动的共享模块（名称为示意） */
       shared: ['react', '<Cart />', '<Search />'],
     },
+    /** 资源模块（已核对：asset/resource、asset/inline、asset/source 分别取代 file-loader、url-loader、raw-loader） */
+    assets: {
+      filename: 'webpack.config.js',
+      lines: [
+        'module: {',
+        '  rules: [',
+        "    { test: /\\.png$/, type: 'asset/resource' }, // file-loader",
+        "    { test: /\\.svg$/, type: 'asset/inline' },   // url-loader",
+        "    { test: /\\.txt$/, type: 'asset/source' },   // raw-loader",
+        '  ],',
+        '},',
+      ],
+    },
+    /** 稳定 ID 示意：只改业务代码时，没动过的 vendors 文件名在 webpack 5 中保持不变（文件名与哈希为示意） */
+    ids: {
+      caption: '示意：只改了业务代码，没动过的 vendors 文件名是否变化',
+      rows: [
+        { label: 'webpack 4', before: 'vendors.3f9a1c.js', after: 'vendors.8b21e0.js', changed: true },
+        { label: 'webpack 5', before: 'vendors.3f9a1c.js', after: 'vendors.3f9a1c.js', changed: false },
+      ],
+    },
+    /**
+     * 移除自动 polyfill：报错原文取自 webpack 源码 lib/errors/ModuleNotFoundError.js（路径为示意）。
+     */
+    polyfill: {
+      command: 'npx webpack',
+      lines: [
+        { text: 'ERROR in ./src/hash.js', tone: 'warning' },
+        { text: "Module not found: Error: Can't resolve 'crypto' in '/app/src'", tone: 'warning' },
+        // 原文较长，按终端宽度断行，措辞不变
+        { text: 'BREAKING CHANGE: webpack < 5 used to include polyfills', tone: 'normal' },
+        { text: 'for node.js core modules by default.', tone: 'normal' },
+        { text: 'This is no longer the case. Verify if you need this module', tone: 'normal' },
+        { text: 'and configure a polyfill for it.', tone: 'normal' },
+      ],
+      caption: '产物更干净了，但升级时，不少项目要手动补上 polyfill',
+    },
   },
-} as const satisfies SceneConfig;
-
-// ─────────────────────────────────────────────────────────────
-// 7. webpack 5（待制作）
-// ─────────────────────────────────────────────────────────────
-export const scene07 = {
-  id: 'scene07-webpack5',
-  title: 'webpack 5',
-  years: [2020, 2020],
-  yearsLabel: '2020.10',
-  focusYear: 2020,
-  durationSeconds: 55,
-  chrome: 'always',
-  audio: 'audio/scene07-webpack5.mp3',
-  narration: "2020 年 10 月 10 日，webpack 5 发布。\n\n持久化缓存可以把构建结果写到磁盘，第二次构建时，没有改动的模块不必重新编译。模块联邦让多个独立部署的应用在运行时共享代码，成了微前端的重要方案。资源模块取代了 file-loader、url-loader 和 raw-loader。生产模式默认使用稳定的模块 ID，长期缓存更加可靠。\n\n它也做了一次大胆的取舍：不再自动为 Node.js 的核心模块注入浏览器 polyfill。产物更干净了，但这是一次破坏性的升级，不少项目需要手动补上。\n\n然而，缓存只能加速重复的构建，改变不了底层的设计。",
-  copy: {},
 } as const satisfies SceneConfig;
 
 // ─────────────────────────────────────────────────────────────

@@ -18,26 +18,33 @@ const TREE = COPY.treeShaking;
 const v4At = scene05.yearStops[0].atFrame; // 与时间轴滑到 2018 同步
 const T = {
   /** 每个版本翻上来的帧 */
-  versions: [20, 350, v4At],
+  versions: [20, 600, v4At],
   flip: 20,
   featureDelay: 30,
   featureStep: 16,
   /** v3 阶段的「回应」卡片 */
-  v3Answer: 390,
+  v3Answer: 640,
   // v2：Tree Shaking
   treeIn: 110,
-  usedHighlight: 170,
-  gray: 200,
-  fall: 226,
+  usedHighlight: 200,
+  gray: 250,
+  fall: 290,
   fallStep: 14,
   fallDur: 36,
-  treeCaption: 290,
-  treeOut: 336,
-  // v4：长配置折叠成一行
+  treeCaption: 380,
+  treeOut: 560,
+  // v4：① 长配置折叠成一行 → ② SplitChunks 取代 CommonsChunkPlugin → ③ sideEffects
   configIn: v4At + 50,
   fold: v4At + 130,
   foldDur: 40,
   modeLine: v4At + 180,
+  configOut: v4At + 280,
+  split: v4At + 300,
+  splitAfter: v4At + 350,
+  splitCaption: v4At + 400,
+  splitOut: v4At + 500,
+  side: v4At + 520,
+  sideCaption: v4At + 570,
 } as const;
 
 // ───────────── 布局 ─────────────
@@ -284,6 +291,55 @@ const TreeShaking: React.FC = () => {
 };
 
 /** v4：长配置折叠成一行 mode: 'production' */
+/** v4：SplitChunksPlugin 取代 CommonsChunkPlugin，以及 package.json 的 sideEffects */
+const V4Extras: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const width = DEMO.right - DEMO.left;
+  const codeSize = fontSize.code - 4;
+  const S = COPY.splitChunks;
+  const E = COPY.sideEffects;
+  const label = (text: string, tone: 'dim' | 'accent') => (
+    <div
+      style={{
+        marginBottom: space.sm,
+        fontFamily: fonts.mono,
+        fontSize: fontSize.small,
+        color: tone === 'accent' ? colors.accent : colors.textDim,
+      }}
+    >
+      {text}
+    </div>
+  );
+  return (
+    <>
+      {frame >= T.split && frame <= T.splitOut + 12 ? (
+        <div style={{ position: 'absolute', left: DEMO.left, top: CARD.top }}>
+          <div style={enterExitStyle(frame, fps, T.split, T.splitOut)}>
+            {label(S.beforeLabel, 'dim')}
+            <CodeBlock lines={S.before} width={width} fontSize={codeSize} dimLines={[0]} dimProgress={rangeProgress(frame, T.splitAfter, T.splitAfter + 20)} />
+          </div>
+          <div style={{ marginTop: space.lg, ...enterExitStyle(frame, fps, T.splitAfter, T.splitOut) }}>
+            {label(S.afterLabel, 'accent')}
+            <CodeBlock lines={S.after} width={width} fontSize={codeSize} />
+          </div>
+          <Caption delay={T.splitCaption} exitAt={T.splitOut} size="note" tone="dim" style={{ marginTop: space.md }}>
+            {S.caption}
+          </Caption>
+        </div>
+      ) : null}
+      {frame >= T.side ? (
+        <div style={{ position: 'absolute', left: DEMO.left, top: CARD.top, ...enterExitStyle(frame, fps, T.side, null) }}>
+          <CodeBlock filename={E.filename} lines={E.lines} width={width} fontSize={codeSize} highlightLines={[2]} highlightProgress={rangeProgress(frame, T.side + 20, T.side + 34)} />
+          <Caption delay={T.sideCaption} size="note" tone="dim" style={{ marginTop: space.md }}>
+            {E.caption}
+          </Caption>
+        </div>
+      ) : null}
+    </>
+  );
+};
+
 const ConfigFold: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -299,8 +355,17 @@ const ConfigFold: React.FC = () => {
   const appear = enterProgress(frame, fps, T.configIn);
   const modeP = enterProgress(frame, fps, T.modeLine);
 
+  if (frame > T.configOut + 12) return null;
   return (
-    <div style={{ position: 'absolute', left: DEMO.left, top: CARD.top, ...enterStyle(appear) }}>
+    <div
+      style={{
+        position: 'absolute',
+        left: DEMO.left,
+        top: CARD.top,
+        ...enterStyle(appear),
+        opacity: appear * exitProgress(frame, T.configOut),
+      }}
+    >
       {frame < T.modeLine ? (
         <CodeBlock
           filename={COPY.configFilename}
@@ -333,6 +398,7 @@ export const Scene05Iteration: React.FC<SceneProps> = ({ duration }) => (
     <Features />
     <TreeShaking />
     <ConfigFold />
+    <V4Extras />
     {/* v3 阶段右侧：回应第 3 幕的代价 */}
     <AnswerCard
       label={thread.answerLabel}

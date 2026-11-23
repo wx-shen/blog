@@ -2,12 +2,13 @@ import React from 'react';
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from 'remotion';
 import { Caption } from '../components/Caption';
 import { CodeBlock } from '../components/CodeBlock';
+import { Pill } from '../components/Pill';
 import type { SceneProps } from '../components/SceneShell';
 import { SceneTitle } from '../components/SceneTitle';
 import { ToolBadge } from '../components/ToolBadge';
 import { enterExitStyle, exitProgress, moveProgress, rangeProgress } from '../lib/anim';
 import { scene02 } from '../scenes';
-import { fontSize, layout, space, toolColors, video } from '../theme';
+import { fontSize, layout, space, toolColors, transition, video } from '../theme';
 
 const COPY = scene02.copy;
 const CJS = COPY.commonjs;
@@ -45,13 +46,13 @@ const T = {
   nodeResult: 520,
   browserResult: 560,
   cjsOut: 760,
-  // ③ 工具：每个工具 240 帧（徽章 → 演示 → 下一个）
-  badges: 790,
-  badgeStep: 240,
+  // ③ 工具：时间轴先滑到该工具的年份（scenes.ts 的 yearStops），徽章随后登场，下方轮流演示
   demoDelay: 30,
-  toolsOut: 1500,
-  // ④ 收尾
-  conclusion: 1530,
+  demosOut: 1480,
+  // ④ 收尾：徽章留作背景，标出各自的分工，再给出结论
+  categories: 1500,
+  categoryStep: 24,
+  conclusion: 1590,
 } as const;
 
 const CODE_WIDTH = 980;
@@ -61,7 +62,11 @@ const BADGE_GAP = (CONTENT_WIDTH - BADGE_WIDTH * 3) / 2;
 const PANEL_WIDTH = (CONTENT_WIDTH - space.xl) / 2;
 const DEMO_TOP = layout.contentTop + 210;
 
-const badgeAt = (i: number) => T.badges + i * T.badgeStep;
+/** 徽章登场帧：等时间轴滑到该工具的首发年份 */
+const badgeAt = (i: number) => {
+  const stop = scene02.yearStops.find((s) => s.year === COPY.tools[i].year);
+  return (stop ? stop.atFrame : scene02.yearStops[0].atFrame) + transition.timelineSlide;
+};
 
 export const Scene02Prehistory: React.FC<SceneProps> = () => {
   const frame = useCurrentFrame();
@@ -70,7 +75,6 @@ export const Scene02Prehistory: React.FC<SceneProps> = () => {
   const warning = rangeProgress(frame, T.warnStart, T.warnEnd);
   const collapse = moveProgress(frame, fps, T.collapse, T.collapseFrames);
   const painsOut = exitProgress(frame, T.collapse);
-  const toolsOut = exitProgress(frame, T.toolsOut);
   // 当前讲到第几个工具
   const active = COPY.tools.reduce((acc, _, i) => (frame >= badgeAt(i) ? i : acc), -1);
 
@@ -154,8 +158,8 @@ export const Scene02Prehistory: React.FC<SceneProps> = () => {
       ) : null}
 
       {/* ③ 社区的三种出路：徽章一字排开，下方轮流演示 */}
-      {frame >= T.badges && toolsOut > 0 ? (
-        <AbsoluteFill style={{ opacity: toolsOut }}>
+      {frame >= badgeAt(0) ? (
+        <AbsoluteFill>
           <div style={{ position: 'absolute', left: space.safe, top: layout.contentTop, display: 'flex', gap: BADGE_GAP }}>
             {COPY.tools.map((t, i) => (
               <ToolBadge
@@ -165,13 +169,21 @@ export const Scene02Prehistory: React.FC<SceneProps> = () => {
                 description={t.description}
                 delay={badgeAt(i)}
                 width={BADGE_WIDTH}
-                dim={i < active ? rangeProgress(frame, badgeAt(active), badgeAt(active) + 12) : 0}
+                dim={i < active && frame < T.categories ? rangeProgress(frame, badgeAt(active), badgeAt(active) + 12) : 0}
               />
+            ))}
+          </div>
+          {/* ④ 收尾：在每个徽章下标出它负责的一段 */}
+          <div style={{ position: 'absolute', left: space.safe, top: layout.contentTop + 215, display: 'flex', gap: BADGE_GAP }}>
+            {COPY.tools.map((t, i) => (
+              <div key={t.name} style={{ width: BADGE_WIDTH, display: 'flex' }}>
+                {frame >= T.categories ? <Pill text={t.category} delay={T.categories + i * T.categoryStep} size="note" color={toolColors[t.tool]} /> : null}
+              </div>
             ))}
           </div>
           {COPY.tools.map((t, i) => {
             const start = badgeAt(i) + T.demoDelay;
-            const end = i + 1 < COPY.tools.length ? badgeAt(i + 1) - 12 : null;
+            const end = i + 1 < COPY.tools.length ? badgeAt(i + 1) - 12 : T.demosOut;
             if (frame < start || (end !== null && frame > end + 12)) return null;
             return (
               <div
@@ -192,7 +204,7 @@ export const Scene02Prehistory: React.FC<SceneProps> = () => {
           size="body"
           tone="normal"
           weight="bold"
-          style={{ position: 'absolute', left: space.safe, top: layout.contentTop + 200, width: CONTENT_WIDTH }}
+          style={{ position: 'absolute', left: space.safe, top: layout.contentTop + 340, width: CONTENT_WIDTH }}
         >
           {COPY.conclusion}
         </Caption>

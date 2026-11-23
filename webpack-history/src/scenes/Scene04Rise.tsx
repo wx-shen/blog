@@ -252,7 +252,7 @@ const LoaderChain: React.FC = () => {
   const n = L.chain.length;
   const boxW = 320;
   const gap = (video.width - space.safe * 2 - boxW * n) / (n - 1);
-  const rowTop = layout.contentTop + 260;
+  const rowTop = layout.contentTop + 375;
   const out = exitProgress(frame, T.loaderOut);
   return (
     <AbsoluteFill style={{ opacity: out }}>
@@ -265,8 +265,26 @@ const LoaderChain: React.FC = () => {
       >
         {L.label}
       </Caption>
-      <div style={{ position: 'absolute', left: space.safe, top: layout.contentTop + 80, ...enterStyle(enterProgress(frame, fps, T.loaderCode)) }}>
-        <CodeBlock filename={L.codeFilename} lines={L.code} width={700} />
+      <div
+        style={{
+          position: 'absolute',
+          left: space.safe,
+          top: layout.contentTop + 70,
+          display: 'flex',
+          gap: space.lg,
+          alignItems: 'flex-start',
+          ...enterStyle(enterProgress(frame, fps, T.loaderCode)),
+        }}
+      >
+        <CodeBlock filename={L.codeFilename} lines={L.code} width={560} fontSize={fontSize.code - 4} />
+        <CodeBlock
+          filename={L.configFilename}
+          lines={L.config}
+          width={video.width - space.safe * 2 - 560 - space.lg}
+          fontSize={fontSize.code - 4}
+          highlightLines={[2]}
+          highlightProgress={rangeProgress(frame, T.chain, T.chain + 14)}
+        />
       </div>
       <svg width={video.width} height={video.height} style={{ position: 'absolute', left: 0, top: 0 }}>
         {L.chain.slice(1).map((_, i) => {
@@ -310,7 +328,7 @@ const LoaderChain: React.FC = () => {
         delay={T.loaderCaption}
         size="note"
         tone="dim"
-        style={{ position: 'absolute', left: space.safe, top: rowTop + 140, width: video.width - space.safe * 2 }}
+        style={{ position: 'absolute', left: space.safe, top: rowTop + 112, width: video.width - space.safe * 2 }}
       >
         {L.caption}
       </Caption>
