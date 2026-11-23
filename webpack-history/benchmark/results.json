@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-23T10:03:15.931Z",
+  "fixture": "three.js src ×10（three 0.187.0），生产构建 + 压缩，无 source map",
+  "machine": {
+    "cpus": 4,
+    "cpuModel": "Intel(R) Xeon(R) Processor @ 2.30GHz",
+    "memGiB": 16,
+    "node": "v22.23.5",
+    "platform": "linux x64"
+  },
+  "versions": {
+    "webpack": "5.113.0",
+    "@rspack/core": "2.3.3",
+    "vite": "8.3.8",
+    "esbuild": "0.28.2"
+  },
+  "runs": 1,
+  "results": [
+    {
+      "label": "webpack",
+      "medianSeconds": 40.97,
+      "runsSeconds": [
+        40.97
+      ],
+      "outputKiB": 7674
+    },
+    {
+      "label": "Rspack",
+      "medianSeconds": 3.89,
+      "runsSeconds": [
+        3.89
+      ],
+      "outputKiB": 7488
+    },
+    {
+      "label": "Vite",
+      "medianSeconds": 1.71,
+      "runsSeconds": [
+        1.71
+      ],
+      "outputKiB": 9041
+    },
+    {
+      "label": "esbuild",
+      "medianSeconds": 0.59,
+      "runsSeconds": [
+        0.59
+      ],
+      "outputKiB": 7581
+    }
+  ]
+}

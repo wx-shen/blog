@@ -1,0 +1,19 @@
+{
+  "name": "bundler-benchmark",
+  "private": true,
+  "description": "第 10 幕柱状图的本机实测：three.js 源码 ×10，生产构建（含压缩）",
+  "type": "module",
+  "scripts": {
+    "setup": "node gen-fixture.mjs",
+    "bench": "node run.mjs"
+  },
+  "devDependencies": {
+    "@rspack/cli": "2.3.3",
+    "@rspack/core": "2.3.3",
+    "esbuild": "0.28.2",
+    "three": "0.187.0",
+    "vite": "8.3.8",
+    "webpack": "5.113.0",
+    "webpack-cli": "7.3.1"
+  }
+}
