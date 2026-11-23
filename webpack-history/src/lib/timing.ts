@@ -12,6 +12,8 @@ export type Segment = {
   chrome: SceneConfig['chrome'];
   /** 段内的年份滑动：第一项是进入本幕时的滑动，其余来自 scenes.ts 的 yearStops */
   moves: YearMove[];
+  /** Timeline / YearCounter 在段内退场的帧（段内帧），null 表示不退场 */
+  chromeExitAt: number | null;
 };
 
 /** 内容区相对幕起点的延迟：开场幕没有时间轴滑动，内容立即开始 */
@@ -41,7 +43,13 @@ export const buildSegments = (
     for (const stop of scene.yearStops ?? []) {
       moves.push({ at: delay + stop.atFrame, from: moves[moves.length - 1].to, to: stop.year });
     }
-    const segment: Segment = { start, duration: durations[i], chrome: scene.chrome, moves };
+    const segment: Segment = {
+      start,
+      duration: durations[i],
+      chrome: scene.chrome,
+      moves,
+      chromeExitAt: scene.chromeExitAt === undefined ? null : delay + scene.chromeExitAt,
+    };
     start += durations[i];
     prevYear = finalYear(scene);
     return segment;
@@ -103,4 +111,10 @@ export const getChromeRiseFrame = (segments: Segment[]): number | null => {
     return null;
   }
   return first.start + first.duration - transition.timelineRise - transition.fadeOut;
+};
+
+/** 当前帧所在段若设置了退场，返回退场开始的全局帧 */
+export const getChromeExitFrame = (frame: number, segments: Segment[]): number | null => {
+  const seg = findSegment(frame, segments);
+  return seg.chromeExitAt === null ? null : seg.start + seg.chromeExitAt;
 };

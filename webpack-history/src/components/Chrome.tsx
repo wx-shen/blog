@@ -1,7 +1,7 @@
 import React from 'react';
 import { useCurrentFrame, useVideoConfig } from 'remotion';
 import { moveProgress } from '../lib/anim';
-import { getChromeRiseFrame, getYearState, type Segment } from '../lib/timing';
+import { getChromeExitFrame, getChromeRiseFrame, getYearState, type Segment } from '../lib/timing';
 import { alpha, colors, layout, transition } from '../theme';
 import { Timeline } from './Timeline';
 import { YearCounter } from './YearCounter';
@@ -12,7 +12,11 @@ export const Chrome: React.FC<{ segments: Segment[] }> = ({ segments }) => {
   const { fps } = useVideoConfig();
   const year = getYearState(frame, segments);
   const riseAt = getChromeRiseFrame(segments);
-  const visibility = riseAt === null ? 1 : moveProgress(frame, fps, riseAt, transition.timelineRise);
+  const exitAt = getChromeExitFrame(frame, segments);
+  const rise = riseAt === null ? 1 : moveProgress(frame, fps, riseAt, transition.timelineRise);
+  // 片尾：沉回底部并淡出
+  const exit = exitAt === null ? 1 : 1 - moveProgress(frame, fps, exitAt, transition.timelineRise);
+  const visibility = rise * exit;
 
   if (visibility <= 0) {
     return null;

@@ -29,6 +29,8 @@ export type SceneConfig = {
    * 到达时时间轴滑到 year，左上角年份随之滚动。
    */
   yearStops?: readonly { atFrame: number; year: number }[];
+  /** Timeline 与 YearCounter 在本幕内退场的帧（相对内容起点），用于片尾 */
+  chromeExitAt?: number;
   copy: Record<string, unknown>;
 };
 
@@ -124,7 +126,7 @@ export const scene02 = {
 } as const satisfies SceneConfig;
 
 // ─────────────────────────────────────────────────────────────
-// 3. 诞生（待制作：copy 仅含分镜已给出的文字）
+// 3. 诞生
 // ─────────────────────────────────────────────────────────────
 export const scene03 = {
   id: 'scene03-birth',
@@ -155,7 +157,7 @@ export const scene03 = {
 } as const satisfies SceneConfig;
 
 // ─────────────────────────────────────────────────────────────
-// 4. 崛起（待制作）
+// 4. 崛起
 // ─────────────────────────────────────────────────────────────
 export const scene04 = {
   id: 'scene04-rise',
@@ -224,7 +226,7 @@ export const scene04 = {
 } as const satisfies SceneConfig;
 
 // ─────────────────────────────────────────────────────────────
-// 5. 快速迭代（待制作）
+// 5. 快速迭代
 // ─────────────────────────────────────────────────────────────
 export const scene05 = {
   id: 'scene05-iteration',
@@ -295,7 +297,7 @@ export const scene05 = {
 } as const satisfies SceneConfig;
 
 // ─────────────────────────────────────────────────────────────
-// 6. 配置之痛（待制作）
+// 6. 配置之痛
 // ─────────────────────────────────────────────────────────────
 export const scene06 = {
   id: 'scene06-config-pain',
@@ -369,7 +371,7 @@ export const scene06 = {
 } as const satisfies SceneConfig;
 
 // ─────────────────────────────────────────────────────────────
-// 7. 挑战者（待制作；柱状图数据见 src/data/benchmark.ts）
+// 7. 挑战者（柱状图数据见 src/data/benchmark.ts）
 // ─────────────────────────────────────────────────────────────
 export const scene07 = {
   id: 'scene07-challengers',
@@ -382,12 +384,18 @@ export const scene07 = {
   audio: 'audio/scene07-challengers.mp3',
   narration: NARRATION_TODO,
   copy: {
-    toolNames: ['esbuild', 'Vite', 'Turbopack', 'Rspack'],
+    /** 柱状图之后依次登场的四个工具及各自的一行定位说明（待核对） */
+    tools: [
+      { tool: 'esbuild', name: 'esbuild', description: '用 Go 编写，极快的打包与转译' },
+      { tool: 'vite', name: 'Vite', description: '开发时基于浏览器原生 ES 模块按需编译' },
+      { tool: 'turbopack', name: 'Turbopack', description: '用 Rust 编写的增量打包工具' },
+      { tool: 'rspack', name: 'Rspack', description: '用 Rust 编写，兼容 webpack 的配置与插件生态' },
+    ],
   },
 } as const satisfies SceneConfig;
 
 // ─────────────────────────────────────────────────────────────
-// 8. 今天（待制作）
+// 8. 今天
 // ─────────────────────────────────────────────────────────────
 export const scene08 = {
   id: 'scene08-today',
@@ -399,18 +407,24 @@ export const scene08 = {
   chrome: 'always',
   audio: 'audio/scene08-today.mp3',
   narration: NARRATION_TODO,
+  // 片尾标题出现前（Scene08Today 的 T.end），时间轴与左上角年份随内容一起退场
+  chromeExitAt: 480,
   copy: {
-    plugins: ['CSS', 'HTML', 'TypeScript'],
+    /** 依次被吸入立方体的三个插件图标：图标上的短标签 + 图标下的名称 */
+    plugins: [
+      { kind: 'css', label: 'CSS', name: 'CSS' },
+      { kind: 'html', label: 'HTML', name: 'HTML' },
+      { kind: 'ts', label: 'TS', name: 'TypeScript' },
+    ],
     statement: '仍在迭代，通往 v6',
+    /** 片尾标题（与开场主标题一致；前段用强调色） */
+    endTitleAccent: 'webpack',
+    endTitleRest: ' 发展史',
+    /** 片尾副标题（待定，空字符串则不显示） */
+    endSubtitle: '',
   },
 } as const satisfies SceneConfig;
 
 export const scenes = [scene01, scene02, scene03, scene04, scene05, scene06, scene07, scene08] as const;
 
 export type SceneId = (typeof scenes)[number]['id'];
-
-/** 界面上的通用文字 */
-export const ui = {
-  /** 尚未制作的幕在预览中显示的提示 */
-  pendingScene: '本幕制作中',
-} as const;
