@@ -1,0 +1,114 @@
+// 用 Google Cloud Text-to-Speech 为每一幕生成旁白音频：public/audio/<scene id>.mp3
+//
+// 用法：node scripts/tts.mjs [幕号...]        例：node scripts/tts.mjs 1 2   （省略则生成全部 13 幕）
+//
+// - 旁白来源：narration.md（每幕「## N 标题 · 时长」下的正文；「>」开头的事实出处不朗读）。
+// - 【停顿】处与段落之间插入静音，其余文字原样合成。
+// - 认证：设置了环境变量 GOOGLE_TTS_API_KEY 时以 X-Goog-Api-Key 发送；
+//   在 Claude Code 云端会话中由网络代理自动附加密钥，无需设置。
+// - 依赖本机的 ffmpeg 拼接音频。
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+
+const VOICE = { languageCode: 'cmn-CN', name: 'cmn-CN-Chirp3-HD-Charon' };
+const SAMPLE_RATE = 24000;
+/** 【停顿】处的静音（秒） */
+const PAUSE = 0.6;
+/** 段落之间的静音（秒） */
+const PARAGRAPH = 0.9;
+/**
+ * 发音替换表：只影响送去合成的文本，narration.md 与画面文字不变。
+ * 例：['npm', 'N P M']。目前原文的效果最好，表为空。
+ */
+const PRONUNCIATIONS = [];
+
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const sceneIds = [...readFileSync(path.join(root, 'src/scenes.ts'), 'utf8').matchAll(/id: '(scene\d{2}-[a-z0-9-]+)'/g)].map((m) => m[1]);
+
+/** 解析 narration.md → [{ n, id, segments: [{ text } | { silence }] }] */
+const parseNarration = () => {
+  const md = readFileSync(path.join(root, 'narration.md'), 'utf8');
+  return md
+    .split(/\n## /)
+    .slice(1)
+    .map((block) => {
+      const [head, ...rest] = block.split('\n');
+      const n = Number(head.split(' ')[0]);
+      const body = rest
+        .join('\n')
+        .split('\n')
+        .filter((l) => !l.startsWith('>') && l.trim() !== '---')
+        .join('\n');
+      const paragraphs = body
+        .split(/\n\s*\n/)
+        .map((p) => p.replace(/\s+/g, ' ').trim())
+        .filter(Boolean);
+      const segments = [];
+      paragraphs.forEach((p, pi) => {
+        if (pi > 0) segments.push({ silence: PARAGRAPH });
+        p.split(/【[^】]*】/).forEach((piece, si) => {
+          if (si > 0) segments.push({ silence: PAUSE });
+          const text = piece.trim();
+          if (text) segments.push({ text });
+        });
+      });
+      // 去掉结尾的静音
+      while (segments.length && 'silence' in segments[segments.length - 1]) segments.pop();
+      return { n, id: sceneIds[n - 1], segments };
+    });
+};
+
+const applyPronunciations = (text) => PRONUNCIATIONS.reduce((t, [from, to]) => t.split(from).join(to), text);
+
+const synthesize = async (text) => {
+  const headers = { 'Content-Type': 'application/json' };
+  if (process.env.GOOGLE_TTS_API_KEY) headers['X-Goog-Api-Key'] = process.env.GOOGLE_TTS_API_KEY;
+  const res = await fetch('https://texttospeech.googleapis.com/v1/text:synthesize', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      input: { text: applyPronunciations(text) },
+      voice: VOICE,
+      audioConfig: { audioEncoding: 'LINEAR16', sampleRateHertz: SAMPLE_RATE },
+    }),
+  });
+  if (!res.ok) throw new Error(`TTS ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  const { audioContent } = await res.json();
+  return Buffer.from(audioContent, 'base64');
+};
+
+const ffmpeg = (args) => execFileSync('ffmpeg', ['-loglevel', 'error', '-y', ...args]);
+
+const buildScene = async (scene, outDir) => {
+  const tmp = mkdtempSync(path.join(os.tmpdir(), `tts-${scene.id}-`));
+  const parts = [];
+  for (const [i, seg] of scene.segments.entries()) {
+    const file = path.join(tmp, `${String(i).padStart(3, '0')}.wav`);
+    if ('silence' in seg) {
+      ffmpeg(['-f', 'lavfi', '-i', `anullsrc=r=${SAMPLE_RATE}:cl=mono`, '-t', String(seg.silence), file]);
+    } else {
+      writeFileSync(file, await synthesize(seg.text));
+    }
+    parts.push(file);
+  }
+  const list = path.join(tmp, 'list.txt');
+  writeFileSync(list, parts.map((p) => `file '${p}'`).join('\n'));
+  const out = path.join(outDir, `${scene.id}.mp3`);
+  ffmpeg(['-f', 'concat', '-safe', '0', '-i', list, '-ar', String(SAMPLE_RATE), '-ac', '1', '-b:a', '128k', out]);
+  rmSync(tmp, { recursive: true, force: true });
+  const seconds = Number(
+    execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', out]).toString().trim(),
+  );
+  return { id: scene.id, seconds };
+};
+
+const wanted = process.argv.slice(2).map(Number);
+const scenes = parseNarration().filter((s) => wanted.length === 0 || wanted.includes(s.n));
+const outDir = path.join(root, 'public/audio');
+mkdirSync(outDir, { recursive: true });
+for (const scene of scenes) {
+  const r = await buildScene(scene, outDir);
+  console.log(`${String(scene.n).padStart(2)} ${r.id.padEnd(22)} ${r.seconds.toFixed(2)}s`);
+}

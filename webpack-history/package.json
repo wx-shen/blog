@@ -8,7 +8,8 @@
     "build": "remotion render src/index.ts WebpackHistory out/webpack-history.mp4",
     "render:scene": "remotion render src/index.ts",
     "stills": "node scripts/stills.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "tts": "node scripts/tts.mjs"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.545",

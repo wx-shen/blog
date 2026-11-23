@@ -63,9 +63,15 @@ npm run typecheck
 - **幕内年份**：`scenes.ts` 里的 `yearStops` 让时间轴在一幕中途滑到新年份（第 5 幕 v4 → 2018，第 6 幕 v5 → 2020，第 7 幕随工具登场 → 2022 → 2023 → 2024）；`atFrame` 与对应场景文件时间表中的帧一致。
 - **视觉参数**（颜色、工具配色、字体、字号、间距、布局、缓动、转场帧数）都在 `src/theme.ts`。
 
-## 旁白音频（暂未接入素材）
+## 旁白音频
 
-把音频放到 `public/audio/<id>.mp3`（例如 `public/audio/scene02-prehistory.mp3`），该幕时长自动变为 **音频时长 + 0.4 秒**，并在幕起点播放；文件不存在时不渲染 `<Audio>`，时长取 `scenes.ts` 的 `durationSeconds`。
+`npm run tts`（或 `npm run tts -- 3 4` 只生成指定幕）用 Google Cloud Text-to-Speech 把 `narration.md` 合成为 `public/audio/<id>.mp3`：
+
+- 音色 `cmn-CN-Chirp3-HD-Charon`，原文直接合成；【停顿】处补 0.6 秒静音，段落之间补 0.9 秒。音色、静音长度与发音替换表都在 `scripts/tts.mjs` 顶部。
+- 认证：本机设置环境变量 `GOOGLE_TTS_API_KEY`（项目需启用 Cloud Text-to-Speech API）；在 Claude Code 云端会话中由网络代理附加密钥，需加 `NODE_USE_ENV_PROXY=1`。
+- 需要本机安装 ffmpeg。
+
+音频存在时，该幕时长自动变为 **音频时长 + 0.4 秒**，并在幕起点播放；文件不存在时不渲染 `<Audio>`，时长取 `scenes.ts` 的 `durationSeconds`。
 
 > Studio 中新增音频后需要刷新页面才会识别。幕内动画按「相对幕起点的帧」编排：音频比默认时长**短**时，请检查对应场景文件顶部的 `T` 时间表，确保最后一个动作落在幕结束之前。
 
